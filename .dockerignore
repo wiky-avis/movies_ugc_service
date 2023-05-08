@@ -4,9 +4,6 @@
 .pytest_cache
 .hypothesis
 
-deploy.yml
-Jenkinsfile
-sonar-project.properties
 **/__pycache__/
 **/*.py[cod]
 
