@@ -1,0 +1,18 @@
+version: '3.4'
+services:
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - flaskapp
+    ports:
+      - 80:80
+
+  fastapi:
+    build: ./src/api
+    restart: on-failure
+    env_file:
+      - ./.env
