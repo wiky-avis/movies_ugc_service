@@ -35,6 +35,8 @@ exclude = '''
 /(
     .venv
     | venv
+    | .env
+    | env
 )/
 '''
 

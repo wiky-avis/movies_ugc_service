@@ -1,7 +1,5 @@
-import pytest
-import pytest_asyncio
 import aiohttp
-import uuid
+import pytest_asyncio
 
 
 @pytest_asyncio.fixture(scope="session")
