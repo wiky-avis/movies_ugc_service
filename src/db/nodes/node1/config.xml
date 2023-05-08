@@ -48,18 +48,6 @@
                     <port>9000</port>
                 </replica>
             </shard>
-            <shard>
-                <replica>
-                    <default_database>shard</default_database>
-                    <host>clickhouse-node3</host>
-                    <port>9000</port>
-                </replica>
-                <replica>
-                    <default_database>replica</default_database>
-                    <host>clickhouse-node4</host>
-                    <port>9000</port>
-                </replica>
-            </shard>
         </company_cluster>
     </remote_servers>
 
