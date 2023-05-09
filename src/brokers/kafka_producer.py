@@ -2,18 +2,10 @@ import logging
 from typing import NoReturn
 
 from aiokafka import AIOKafkaProducer, errors
-from pydantic import BaseSettings
 
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
-
-
-class BaseKafkaSettings(BaseSettings):
-    bootstrap_servers: str = "localhost:9091"
-
-
-class KafkaProduserSettings(BaseKafkaSettings):
-    topic_name: str = "my_topic"
+from src.settings.kafka import KafkaProduserSettings
 
 
 logger = logging.getLogger(__name__)

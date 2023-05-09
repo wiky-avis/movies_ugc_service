@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from src.api.v1 import view_progress
 from src.brokers.kafka_producer import KafkaProducer
+from src.settings import logger, settings
 
 
 def create_app() -> FastAPI:
@@ -26,4 +27,10 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "app:app",
+        host=settings.project_host,
+        port=settings.project_port,
+        log_config=logger.LOGGING,
+        reload=True,
+    )

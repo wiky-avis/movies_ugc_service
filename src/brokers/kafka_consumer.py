@@ -8,13 +8,7 @@ from kafka import TopicPartition
 
 from src.brokers.base import BaseConsumer
 from src.brokers.exceptions import ConsumerError
-from src.brokers.kafka_producer import BaseKafkaSettings
-
-
-class KafkaConsumerSettings(BaseKafkaSettings):
-    topic_name: str = "my_topic"
-    timeout_ms: int = 10 * 1000
-    max_records: int = 10
+from src.settings.kafka import KafkaConsumerSettings
 
 
 logger = logging.getLogger(__name__)
