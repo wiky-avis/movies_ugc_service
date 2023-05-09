@@ -1,0 +1,20 @@
+version: '3.4'
+services:
+
+  functional_tests:
+    image: fastapi
+    entrypoint: >
+      sh -c "pytest tests/functional"
+    env_file:
+      - ./.env
+    depends_on:
+      - fastapi
+
+  unit_tests:
+    image: fastapi
+    entrypoint: >
+      sh -c "pytest tests/unit"
+    env_file:
+      - ./.env
+    depends_on:
+      - fastapi

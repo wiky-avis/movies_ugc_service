@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "movies_ugc_service"}]
 
 [tool.poetry.dependencies]
 python = "~3.11"
@@ -12,10 +11,13 @@ kafka-python = "2.0.2"
 pyjwt = "2.6.0"
 cryptography = "40.0.2"
 fastapi = "0.95.1"
+clickhouse-driver = "^0.2.6"
 
 
 [tool.poetry.group.dev.dependencies]
+# tests
 pytest = "7.3.1"
+pytest-asyncio = "^0.21.0"
 # linters
 black = "23.3.0"
 isort = "5.12.0"
