@@ -1,7 +1,0 @@
-version: '3.4'
-services:
-
-  etl:
-    build: ./src/etl
-    env_file:
-      - ./.env

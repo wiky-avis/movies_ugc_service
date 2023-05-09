@@ -10,33 +10,33 @@ isort:
 linters: isort black flake8
 
 docker-up-all:
-	docker-compose -f docker-compose/main.yml -f docker-compose/events.yml -f docker-compose/db.yml -f docker-compose/etl.yml -f docker-compose/api.yml up --build
+	docker-compose up --build
 
-docker-down-all: docker-down-main docker-down-events docker-down-db docker-down-etl docker-down-api
+docker-down-all: docker-compose down -v
 
-docker-down-v-main:
-	docker-compose -f docker-compose/main.yml down -v
+docker-compose down -v zookeeper:
+	docker-compose down -v zookeeper
 
 docker-up-events:
-	docker-compose -f docker-compose/main.yml -f docker-compose/events.yml up --build
+	docker-compose up --build zookeeper broker
 
 docker-down-v-events:
-	docker-compose -f docker-compose/events.yml down -v
+	docker-compose down -v zookeeper broker
 
 docker-up-db:
-	docker-compose -f docker-compose/main.yml -f docker-compose/db.yml up --build
+	docker-compose up --build zookeeper clickhouse-node1 clickhouse-node2
 
 docker-down-v-db:
-	docker-compose -f docker-compose/db.yml down -v
+	docker-compose down -v zookeeper clickhouse-node1 clickhouse-node2
 
 docker-up-etl:
-	docker-compose -f docker-compose/main.yml -f docker-compose/events.yml -f docker-compose/db.yml -f docker-compose/etl.yml up --build
+	docker-compose up --build zookeeper broker clickhouse-node1 clickhouse-node2 etl
 
 docker-down-v-etl:
-	docker-compose -f docker-compose/etl.yml down -v
+	docker-compose down -v zookeeper broker clickhouse-node1 clickhouse-node2 etl
 
 docker-up-api:
-	docker-compose -f docker-compose/main.yml -f docker-compose/events.yml -f docker-compose/api.yml up --build
+	docker-compose up --build zookeeper broker fastapi nginx
 
 docker-down-v-api:
-	docker-compose -f docker-compose/api.yml down -v
+	docker-compose down -v zookeeper broker fastapi nginx
