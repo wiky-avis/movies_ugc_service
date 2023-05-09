@@ -6,14 +6,13 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH "${PYTHONPATH}:/opt/app"
 
-# Нужно сюда вписать будет поетри установку
-COPY requirements.txt requirements.txt
+COPY pyproject.toml .
 
-RUN  pip install --upgrade pip \
-     && pip install -r requirements.txt --no-cache-dir
+RUN pip3 install poetry==1.4.2 --no-cache-dir
+RUN poetry config virtualenvs.create false && poetry install
 
 COPY . .
 
-RUN chmod +x run.sh
+RUN chmod +x src/api/run.sh
 
-ENTRYPOINT ["/opt/app/run.sh"]
+ENTRYPOINT ["/opt/app/src/api/run.sh"]

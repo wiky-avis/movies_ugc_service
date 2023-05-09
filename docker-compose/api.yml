@@ -12,7 +12,9 @@ services:
       - 80:80
 
   fastapi:
-    build: ./src/api
+    build: 
+      context: ../.
+      dockerfile: src/api/Dockerfile
     restart: on-failure
     env_file:
-      - ./.env
+      - ../.env
