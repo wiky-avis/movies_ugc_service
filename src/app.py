@@ -1,7 +1,6 @@
 import uvicorn as uvicorn
 from fastapi import FastAPI
 
-from src.api.v1 import view_progress
 from src.brokers.kafka_producer import KafkaProducer
 from src.settings import logger, settings
 
@@ -19,8 +18,6 @@ def create_app() -> FastAPI:
         docs_url="/swagger",
         openapi_prefix="",
     )
-
-    app.include_router(view_progress.router, prefix="/api/v1")
 
     return app
 

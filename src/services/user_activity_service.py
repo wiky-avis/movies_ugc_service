@@ -6,7 +6,7 @@ from typing import NoReturn
 
 import orjson
 from fastapi import Depends, HTTPException
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from src.brokers.exceptions import ProducerError
 from src.brokers.kafka_producer import KafkaProducer
@@ -14,13 +14,6 @@ from src.services.base import BaseService
 
 
 logger = logging.getLogger(__name__)
-
-
-class UserViewProgressEventModel(BaseModel):
-    user_id: str
-    film_id: str
-    viewed_frame: int
-    event_time: str
 
 
 class UserActivityService(BaseService):
@@ -35,14 +28,17 @@ class UserActivityService(BaseService):
     ) -> NoReturn:
         try:
             value = UserViewProgressEventModel(
-                    user_id=user_id,
-                    film_id=film_id,
-                    viewed_frame=value,
-                    event_time=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                user_id=user_id,
+                film_id=film_id,
+                viewed_frame=value,
+                event_time=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
             )
         except ValidationError:
             logger.warning(
-                "Fail to parse data for event: user_id %s film_id %s", user_id, film_id, exc_info=True
+                "Fail to parse data for event: user_id %s film_id %s",
+                user_id,
+                film_id,
+                exc_info=True,
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
