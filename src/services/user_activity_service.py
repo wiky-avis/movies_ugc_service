@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from functools import lru_cache
 from http import HTTPStatus
+from typing import NoReturn
 
 import orjson
 from fastapi import Depends, HTTPException
@@ -18,10 +19,12 @@ class UserActivityService(BaseService):
     def __init__(self, producer: KafkaProducer):
         self._producer = producer
 
-    async def send(self, key, value):
+    async def send(self, key: bytes, value: bytes) -> NoReturn:
         await self._producer.send(key=key, value=value)
 
-    async def save_view_progress(self, user_id, film_id, value):
+    async def save_view_progress(
+        self, user_id: str, film_id: str, value: int
+    ) -> NoReturn:
         value = {
             "user_id": user_id,
             "film_id": film_id,

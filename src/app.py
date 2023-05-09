@@ -1,7 +1,6 @@
 import uvicorn as uvicorn
 from fastapi import FastAPI
 
-from src.api.v1 import view_progress
 from src.brokers.kafka_producer import KafkaProducer
 from src.settings import logger, settings
 
