@@ -1,9 +1,9 @@
-import json
 import logging
 from datetime import datetime
 from functools import lru_cache
 from http import HTTPStatus
 
+import orjson
 from fastapi import Depends, HTTPException
 
 from src.brokers.exceptions import ProducerError
@@ -32,7 +32,7 @@ class UserActivityService(BaseService):
         try:
             key = f"{film_id}:{user_id}".encode("utf-8")
             await self.send(
-                value=json.dumps(value, ensure_ascii=False).encode("utf-8"),
+                value=orjson.dumps(value),
                 key=key,
             )
         except ProducerError:

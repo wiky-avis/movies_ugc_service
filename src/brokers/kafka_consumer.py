@@ -1,9 +1,13 @@
+import asyncio
 import logging
+from typing import Dict, List
 
-from aiokafka import AIOKafkaConsumer, errors
+import orjson
+from aiokafka import AIOKafkaConsumer, ConsumerRecord, errors
+from kafka import TopicPartition
 
 from src.brokers.base import BaseConsumer
-from src.brokers.exceptions import ProducerError
+from src.brokers.exceptions import ConsumerError
 from src.brokers.kafka_producer import BaseKafkaSettings
 
 
@@ -21,9 +25,12 @@ class KafkaConsumer(BaseConsumer):
     kafka_consumer = None
 
     async def start(self):
+        loop = asyncio.get_event_loop()
         self.kafka_consumer = AIOKafkaConsumer(
             self.config.topic_name,
+            loop=loop,
             bootstrap_servers=self.config.bootstrap_servers,
+            auto_offset_reset="earliest",
         )
         await self.kafka_consumer.start()
 
@@ -32,32 +39,41 @@ class KafkaConsumer(BaseConsumer):
             await self.kafka_consumer.stop()
             self.kafka_consumer = None
 
-    async def consume(self):
-        await self.start()
+    @staticmethod
+    def deserialize(record: ConsumerRecord) -> dict:
+        return orjson.loads(record.value)
 
-        retrieved_requests = []
-        try:
-            result = await self.kafka_consumer.getmany(
-                timeout_ms=self.config.timeout_ms,
-                max_records=self.config.max_records,
-            )
-            for tp, messages in result.items():
-                if messages:
-                    for message in messages:
-                        retrieved_requests.append(
-                            {
-                                "key": message.key.decode("utf-8"),
-                                "value": message.value.decode("utf-8"),
-                            }
+    async def consume(self) -> list[dict]:
+        await self.start()
+        partition: TopicPartition = list(self.kafka_consumer.assignment())[0]
+        await self.kafka_consumer.seek_to_end(partition)
+
+        retrieved_events = []
+        while True:
+            try:
+                response: Dict[
+                    TopicPartition, List[ConsumerRecord]
+                ] = await self.kafka_consumer.getmany(
+                    partition,
+                    timeout_ms=self.config.timeout_ms,
+                    max_records=self.config.max_records,
+                )
+                if partition in response:
+                    for record in response[partition]:
+                        retrieved_events.append(
+                            dict(
+                                key=record.key.decode("utf-8"),
+                                value=self.deserialize(record),
+                            )
                         )
 
-            return retrieved_requests
-        except errors.KafkaError:
-            logger.error(
-                f"Error when receiving events for topic %s",
-                self.config.topic_name,
-                exc_info=True,
-            )
-            raise ProducerError
-        finally:
-            await self.stop()
+            except errors.KafkaError:
+                logger.error(
+                    f"Error when receiving events for topic %s",
+                    self.config.topic_name,
+                    exc_info=True,
+                )
+                raise ConsumerError
+            finally:
+                await self.stop()
+                return retrieved_events
