@@ -63,7 +63,7 @@ class KafkaConsumer(BaseConsumer):
 
             except errors.KafkaError:
                 logger.error(
-                    f"Error when receiving events for topic %s",
+                    "Error when receiving events for topic %s",
                     self.config.topic_name,
                     exc_info=True,
                 )
