@@ -45,10 +45,10 @@ LOGGING = {
             "handlers": LOG_DEFAULT_HANDLERS,
             "level": settings.log_format,
         },
-        "uvicorn.error": {
+        "gunicorn.error": {
             "level": "INFO",
         },
-        "uvicorn.access": {
+        "gunicorn.access": {
             "handlers": ["access"],
             "level": "INFO",
             "propagate": False,

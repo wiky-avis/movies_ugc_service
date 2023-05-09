@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from src.brokers.exceptions import ProducerError
 from src.brokers.kafka_producer import KafkaProducer
+from src.brokers.models import UserViewProgressEventModel
 from src.services.base import BaseService
 
 
