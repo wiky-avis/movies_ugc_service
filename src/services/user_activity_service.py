@@ -1,16 +1,14 @@
 import logging
 from datetime import datetime
-from functools import lru_cache
 from http import HTTPStatus
 from typing import NoReturn
 
 import orjson
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from pydantic import ValidationError
 
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
-from src.brokers.kafka_producer import KafkaProducer
 from src.brokers.models import UserViewProgressEventModel
 from src.services.base import BaseService
 
@@ -58,10 +56,3 @@ class UserActivityService(BaseService):
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 detail="Error sending the event",
             )
-
-
-@lru_cache()
-def user_activity_service(
-    producer: BaseProducer = Depends(KafkaProducer),
-) -> UserActivityService:
-    return UserActivityService(producer)
