@@ -8,7 +8,9 @@ load_dotenv()
 
 
 class BaseKafkaSettings(BaseSettings):
-    bootstrap_servers: str = "localhost:9091"
+    bootstrap_servers: str = Field(
+        env="KAFKA_SERVER", default="localhost:9091"
+    )
 
     class Config:
         env_file: str = ".env"
