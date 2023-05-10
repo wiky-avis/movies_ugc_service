@@ -7,11 +7,17 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "~3.11"
-kafka-python = "2.0.2"
 pyjwt = "2.6.0"
 cryptography = "40.0.2"
 fastapi = "0.95.1"
-clickhouse-driver = "^0.2.6"
+clickhouse-driver = "0.2.6"
+confluent-kafka = "2.1.1"
+aiokafka = "0.8.0"
+gunicorn = "20.1.0"
+click = "8.1.3"
+orjson = "3.8.12"
+python-dotenv = "1.0.0"
+dependency-injector = "^4.41.0"
 
 
 [tool.poetry.group.dev.dependencies]
