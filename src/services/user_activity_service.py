@@ -8,6 +8,7 @@ import orjson
 from fastapi import Depends, HTTPException
 from pydantic import ValidationError
 
+from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.brokers.kafka_producer import KafkaProducer
 from src.brokers.models import UserViewProgressEventModel
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class UserActivityService(BaseService):
-    def __init__(self, producer: KafkaProducer):
+    def __init__(self, producer: BaseProducer):
         self._producer = producer
 
     async def send(self, key: bytes, value: bytes) -> NoReturn:
@@ -61,6 +62,6 @@ class UserActivityService(BaseService):
 
 @lru_cache()
 def user_activity_service(
-    producer: KafkaProducer = Depends(KafkaProducer),
+    producer: BaseProducer = Depends(KafkaProducer),
 ) -> UserActivityService:
     return UserActivityService(producer)
