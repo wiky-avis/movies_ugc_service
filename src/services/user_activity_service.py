@@ -6,7 +6,9 @@ from typing import NoReturn
 import orjson
 from fastapi import HTTPException
 from pydantic import ValidationError
+from starlette.responses import JSONResponse
 
+from src.api.v1.models.view_progress import SaveViewProgressInput
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.brokers.models import UserViewProgressEventModel
@@ -24,19 +26,18 @@ class UserActivityService(BaseService):
         await self._producer.send(key=key, value=value)
 
     async def save_view_progress(
-        self, user_id: str, film_id: str, value: int
+        self, film_id: str, payload: SaveViewProgressInput
     ) -> NoReturn:
         try:
             value = UserViewProgressEventModel(
-                user_id=user_id,
+                user_id=payload.user_id,
                 film_id=film_id,
-                viewed_frame=value,
+                viewed_frame=payload.viewed_frame,
                 event_time=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
             )
         except ValidationError:
-            logger.warning(
-                "Fail to parse data for event: user_id %s film_id %s",
-                user_id,
+            logger.error(
+                "Fail to parse data for event for film_id %s",
                 film_id,
                 exc_info=True,
             )
@@ -46,13 +47,21 @@ class UserActivityService(BaseService):
             )
 
         try:
-            key = f"{film_id}:{user_id}".encode("utf-8")
+            key = f"{film_id}:{payload.user_id}".encode("utf-8")
             await self.send(
                 value=orjson.dumps(value.dict()),
                 key=key,
             )
         except ProducerError:
+            logger.warning(
+                "Error sending the event: film_id %s payload %s",
+                film_id,
+                payload.dict(),
+                exc_info=True,
+            )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 detail="Error sending the event",
             )
+
+        return JSONResponse(content={"result": "Ok."})
