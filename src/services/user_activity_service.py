@@ -5,7 +5,6 @@ from typing import NoReturn
 
 import orjson
 from fastapi import HTTPException
-from pydantic import ValidationError
 from starlette.responses import JSONResponse
 
 from src.api.v1.models.view_progress import SaveViewProgressInput
@@ -28,28 +27,17 @@ class UserActivityService(BaseService):
     async def save_view_progress(
         self, film_id: str, payload: SaveViewProgressInput
     ) -> NoReturn:
-        try:
-            value = UserViewProgressEventModel(
-                user_id=payload.user_id,
-                film_id=film_id,
-                viewed_frame=payload.viewed_frame,
-                event_time=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-            )
-        except ValidationError:
-            logger.error(
-                "Fail to parse data for event for film_id %s",
-                film_id,
-                exc_info=True,
-            )
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Bad request",
-            )
+        view_progress = UserViewProgressEventModel(
+            user_id=payload.user_id,
+            film_id=film_id,
+            viewed_frame=payload.viewed_frame,
+            event_time=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        )
 
         try:
             key = f"{film_id}:{payload.user_id}".encode("utf-8")
             await self.send(
-                value=orjson.dumps(value.dict()),
+                value=orjson.dumps(view_progress.dict()),
                 key=key,
             )
         except ProducerError:
