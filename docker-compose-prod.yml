@@ -1,0 +1,54 @@
+version: '3.4'
+services:
+
+  zookeeper:
+    extends:
+      file: docker-compose-base.yml
+      service: zookeeper
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - fastapi
+    ports:
+      - 80:80
+
+  broker:
+    extends:
+      file: docker-compose-base.yml
+      service: broker
+    depends_on:
+      - zookeeper
+
+  clickhouse-node1:
+    extends:
+      file: docker-compose-base.yml
+      service: clickhouse-node1
+    depends_on:
+      - zookeeper
+
+  clickhouse-node2:
+    extends:
+      file: docker-compose-base.yml
+      service: clickhouse-node2
+    depends_on:
+      - zookeeper
+  
+  etl:
+    extends:
+      file: docker-compose-base.yml
+      service: etl
+    depends_on:
+      - broker
+      - clickhouse-node1
+      - clickhouse-node2
+  
+  fastapi:
+    extends:
+      file: docker-compose-base.yml
+      service: fastapi
+    depends_on:
+      - broker
