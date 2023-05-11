@@ -21,8 +21,6 @@ services:
       service: broker
     ports:
       - "9092:9092"
-    environment:
-      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
     depends_on:
       - zookeeper
     volumes:
@@ -34,6 +32,31 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: "broker:19091"
+      KAFKA_BROKERCONNECT: broker:29092
+    depends_on:
+      - broker
+
+  clickhouse-node1:
+    extends:
+      file: docker-compose-base.yml
+      service: clickhouse-node1
+    ports:
+      - "8123:8123"
+    depends_on:
+      - zookeeper
+
+  clickhouse-node2:
+    extends:
+      file: docker-compose-base.yml
+      service: clickhouse-node2
+    depends_on:
+      - zookeeper
+
+  fastapi:
+    extends:
+      file: docker-compose-base.yml
+      service: fastapi
+    ports:
+      - "8000:8000"
     depends_on:
       - broker

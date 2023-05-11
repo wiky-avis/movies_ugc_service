@@ -18,7 +18,7 @@ class KafkaProducer(BaseProducer):
     @classmethod
     async def setup(cls):
         cls.kafka_producer = AIOKafkaProducer(
-            bootstrap_servers=cls.config.bootstrap_servers
+            bootstrap_servers='broker:9092'
         )
         await cls.kafka_producer.start()
 
