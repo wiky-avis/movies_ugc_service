@@ -20,7 +20,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://broker:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -28,30 +28,23 @@ services:
       - ./data/broker/data:/var/lib/broker/data
   
   clickhouse-node1:
-    image: yandex/clickhouse-server:20.4
+    image: yandex/clickhouse-server:20.3
     container_name: clickhouse-node1
     hostname: clickhouse-node1
     volumes:
+      - ./data/db/ddl/setup_clickhouse.sql:/docker-entrypoint-initdb.d/setup_clickhouse.sql
       - ./data/db/node1:/etc/clickhouse-server
 
   clickhouse-node2:
-    image: yandex/clickhouse-server:20.4
+    image: yandex/clickhouse-server:20.3
     container_name: clickhouse-node2
     hostname: clickhouse-node2
     volumes:
       - ./data/db/node2:/etc/clickhouse-server
 
-  etl:
-    build: 
-      context: ./.
-      dockerfile: src/etl/Dockerfile
-    env_file:
-      - ./.env
-
   fastapi:
     build: 
       context: ./.
       dockerfile: src/api/Dockerfile
-    restart: on-failure
     env_file:
       - ./.env

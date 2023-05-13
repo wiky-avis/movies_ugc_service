@@ -31,7 +31,7 @@ class UserActivityService(BaseService):
             user_id=payload.user_id,
             film_id=film_id,
             viewed_frame=payload.viewed_frame,
-            event_time=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
         try:

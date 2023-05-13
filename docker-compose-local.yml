@@ -11,6 +11,7 @@ services:
       ZOO_MY_ID: 1
       ZOO_PORT: 2181
       ZOO_SERVERS: server.1=zookeeper:2888:3888
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     volumes:
       - ./test_data/zookeeper/data:/test_data
       - ./test_data/zookeeper/datalog:/test_datalog
@@ -21,8 +22,6 @@ services:
       service: broker
     ports:
       - "9092:9092"
-    environment:
-      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
     depends_on:
       - zookeeper
     volumes:
@@ -34,6 +33,33 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: "broker:19091"
+      KAFKA_BROKERCONNECT: broker:29092
+    depends_on:
+      - broker
+
+  clickhouse-node1:
+    extends:
+      file: docker-compose-base.yml
+      service: clickhouse-node1
+    ports:
+      - "8123:8123"
+    depends_on:
+      - zookeeper
+      - broker
+
+  clickhouse-node2:
+    extends:
+      file: docker-compose-base.yml
+      service: clickhouse-node2
+    depends_on:
+      - zookeeper
+      - broker
+
+  fastapi:
+    extends:
+      file: docker-compose-base.yml
+      service: fastapi
+    ports:
+      - "8000:8000"
     depends_on:
       - broker
