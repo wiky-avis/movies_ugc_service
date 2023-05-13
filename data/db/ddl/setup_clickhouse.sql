@@ -24,7 +24,7 @@ create table if not exists ugc.user_progress on cluster company_cluster
     ts DateTime
 ) engine=MergeTree 
 partition by toYYYYMMDD(ts) 
-order by (user_id, viewed_frame);
+order by (user_id, film_id, viewed_frame);
 
 
 create materialized view if not exists ugc.user_progress_mv to ugc.user_progress as 
