@@ -32,6 +32,7 @@ services:
     container_name: clickhouse-node1
     hostname: clickhouse-node1
     volumes:
+      - ./data/db/ddl/setup_clickhouse.sql:/docker-entrypoint-initdb.d/setup_clickhouse.sql
       - ./data/db/node1:/etc/clickhouse-server
 
   clickhouse-node2:
@@ -40,13 +41,6 @@ services:
     hostname: clickhouse-node2
     volumes:
       - ./data/db/node2:/etc/clickhouse-server
-
-  etl:
-    build: 
-      context: ./.
-      dockerfile: src/etl/Dockerfile
-    env_file:
-      - ./.env
 
   fastapi:
     build: 

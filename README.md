@@ -5,17 +5,22 @@
 - Event storage - kafka
 - Event API - loads events to event storage
 - Database - Clickhouse
-- ETL - loads events from event storage to database for analytical purposes
+- ETL - loads events from event storage to database for analytical purposes (Kafka Table Engine)
 
 ## How to start app
 
-Project uses makefiles to boot apps. Each makefile command relates to specific part off the app
+Project uses makefiles to boot apps. There are mulltiple boot configurations: production and development.
+The difference is that dev has open ports and separate volumes. Tests boot on dev environment.
 
-- Start everything - `make docker-up-all`
-- Event storage - `make docker-up-events`
-- Database - `make docker-up-db`
-- ETL - `make docker-up-etl`
-- Event API - `make docker-up-api`
+### Production commands
+
+- Up+build `make up-prod`
+- Down `make down-prod`
+
+### Development commands
+
+- Up+build `make up-local`
+- Down + remove volumes `make down-local`
 
 ## Contributors
 
