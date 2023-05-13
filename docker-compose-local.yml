@@ -11,6 +11,7 @@ services:
       ZOO_MY_ID: 1
       ZOO_PORT: 2181
       ZOO_SERVERS: server.1=zookeeper:2888:3888
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     volumes:
       - ./test_data/zookeeper/data:/test_data
       - ./test_data/zookeeper/datalog:/test_datalog
@@ -44,6 +45,7 @@ services:
       - "8123:8123"
     depends_on:
       - zookeeper
+      - broker
 
   clickhouse-node2:
     extends:
@@ -51,6 +53,7 @@ services:
       service: clickhouse-node2
     depends_on:
       - zookeeper
+      - broker
 
   fastapi:
     extends:
