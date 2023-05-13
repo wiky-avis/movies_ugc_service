@@ -1,5 +1,6 @@
 import logging
 from typing import NoReturn
+import backoff
 
 from aiokafka import AIOKafkaProducer, errors
 
@@ -16,8 +17,11 @@ class KafkaProducer(BaseProducer):
     kafka_producer = None
 
     @classmethod
+    @backoff.on_exception(backoff.expo,
+                          errors.KafkaConnectionError,
+                          max_time=60)
     async def setup(cls):
-        cls.kafka_producer = AIOKafkaProducer(bootstrap_servers="broker:9092")
+        cls.kafka_producer = AIOKafkaProducer(bootstrap_servers=cls.config.bootstrap_servers)
         await cls.kafka_producer.start()
 
     @classmethod
