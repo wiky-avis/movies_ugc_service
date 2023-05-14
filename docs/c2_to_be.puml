@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+skinparam componentStyle uml2
+skinparam backgroundColor MOTIVATION
+
+title [C2]: TO BE
+
+package "Admin Panel" {
+  component Nginx as nginx_admin_panel
+  component "Django Application" as app_admin_panel
+  component DjangoAdmin as django_admin_panel
+}
+
+database "PostgresSQL"
+database "Elasticsearch"
+
+node "ETL Service" {
+  component ETL as etl_service_movie
+}
+
+package "Async API" {
+  component Nginx as nginx_async_api
+  component "FastApi Application" as app_async_api
+  database Redis as redis_async_api
+}
+
+package "Auth Service" {
+  component Nginx as nginx_auth_service
+  component "Flask Application" as app_auth_service
+  database PostgreSQL as posgresql_auth_service
+  database Redis as redis_auth_service
+}
+
+package "UGC Service" {
+  component Nginx as nginx_ugc
+  component "FastAPI Application" as app_ugc
+  database Kafka as kafka_ugc
+  database ClickHouse as clickhouse_ugc
+  database PostgresSQL as postgres_ugc
+}
+
+@enduml
