@@ -37,6 +37,7 @@ participant ugc_api as ugc_api
 participant kafka_producer as kafka_producer
 database postgresql_db as postgresql_db
 queue kafka as kafka
+participant clickhouse_consumer as clickhouse_consumer
 database clickhouse_db as clickhouse_db
 end box
 
@@ -65,13 +66,17 @@ deactivate ugc_api
 end
 
 autonumber 16
-kafka <- clickhouse_db: select events
+group ETL
+kafka <- clickhouse_consumer: select events
 activate kafka
-activate clickhouse_db
-kafka --> clickhouse_db: events
+activate clickhouse_consumer
+kafka --> clickhouse_consumer: events
 deactivate kafka
+deactivate clickhouse_consumer
+clickhouse_consumer -> clickhouse_db: insert events
+activate clickhouse_db
 deactivate clickhouse_db
-clickhouse_db -> clickhouse_db: insert events
+end
 
 autonumber 19
 group get last activity
