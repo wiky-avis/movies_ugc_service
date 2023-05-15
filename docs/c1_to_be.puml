@@ -1,0 +1,49 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!include <C4/C4_Container>
+!include <C4/C4_Context>
+!include <office/users/users.puml>
+!include <elastic/common>
+!include <elastic/elasticsearch/elasticsearch>
+!include DEVICONS/postgresql.puml
+!include DEVICONS/python.puml
+!include DEVICONS/webplatform.puml
+!include DEVICONS/django.puml
+skinparam backgroundColor MOTIVATION
+
+title [C1]: TO BE
+
+HIDE_STEREOTYPE()
+SHOW_PERSON_OUTLINE()
+
+AddElementTag("etl", $fontColor=$ELEMENT_FONT_COLOR, $bgColor="#335DA5", $shape=EightSidedShape())
+AddElementTag("new_service", $bgColor="Cyan", $fontColor="black")
+
+Person(User, "Пользователи", $sprite="users")
+Person(Admin, "Администратор", "Заносит контент в админку")
+
+System_Boundary(wb, "Web") {
+    Container(web_app, "Web Client", $sprite="webplatform")
+}
+Container(admin_service, "Admin Panel", "Создание/редактирование контента", $sprite="django")
+Container(auth_service, "Auth Service", "Сервис аутентификации")
+Container(async_api_service, "Async API", "Сервис для получения информации по контенту")
+Container(etl_service, "ETL Service", "Переносит данные из БД в Еластик", $tags="etl", $sprite="python")
+ContainerDb(db, "DataBase", "Хранилище контента", $tags="db", $sprite="postgresql")
+ELASTICSEARCH(elastic, "Elasticsearch",database)
+Container(ugc_service, "UGC Service", "Сервис для отслеживания активности пользователя", $tags="new_service")
+
+
+[Admin] --> [admin_service]
+[admin_service] <--> [db]
+[db] <-- [etl_service]
+[etl_service] --> [elastic]
+Rel(User, web_app, "Uses", "HTTPS")
+Rel(web_app, auth_service, "Аутентификация", "HTTPS")
+Rel(web_app, async_api_service, "Запрос контента", "HTTPS")
+[async_api_service] --> [elastic]
+Rel(web_app, ugc_service, "Сохранение/просмотр активности", "HTTPS")
+
+@enduml

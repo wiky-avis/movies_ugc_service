@@ -1,0 +1,99 @@
+@startuml
+
+title [C2]: TO BE
+
+autonumber
+skinparam sequenceMessageAlign center
+
+actor user as user
+
+box Movies (My) #LightGray
+participant my_movies_front as my_movies_front
+participant auth_api as auth_api
+participant async_api as async_api
+end box
+
+user -> my_movies_front : click login button
+note right of user
+Аутентификация пользователя
+end note
+my_movies_front -> auth_api : [post] user login
+my_movies_front <-- auth_api: response user data OK and set cookie access_token
+user -> my_movies_front : user opens the movie service page
+note right of user
+Запрашивает какой-то контент
+end note
+my_movies_front -> async_api : [get][headers: Cookie access_token] async_api request
+my_movies_front <-- async_api: response content OK
+user -> my_movies_front : user commits some kind of activity
+note right of user
+Совершает какое-то действие
+end note
+
+|||
+
+box UGC Service #lightBlue
+participant ugc_api as ugc_api
+participant kafka_producer as kafka_producer
+database postgresql_db as postgresql_db
+queue kafka as kafka
+participant clickhouse_consumer as clickhouse_consumer
+database clickhouse_db as clickhouse_db
+end box
+
+autonumber 8
+group save activity
+my_movies_front -> ugc_api: [post] ugc request
+note right of my_movies_front
+Предварительно извлекает из кук access_token,
+расшифровывает и получает данные юзера
+end note
+activate ugc_api
+ugc_api -> kafka_producer: deliver event
+activate kafka_producer
+kafka_producer -> kafka: publish event
+activate kafka
+kafka_producer -> postgresql_db: insert or update user activity
+activate postgresql_db
+kafka_producer <-- postgresql_db: return
+deactivate postgresql_db
+kafka_producer <-- kafka: return
+deactivate kafka
+ugc_api <-- kafka_producer: return
+deactivate kafka_producer
+my_movies_front <-- ugc_api: response OK
+deactivate ugc_api
+end
+
+autonumber 16
+group ETL
+kafka <- clickhouse_consumer: select events
+activate kafka
+activate clickhouse_consumer
+kafka --> clickhouse_consumer: events
+deactivate kafka
+clickhouse_consumer -> clickhouse_db: insert events
+activate clickhouse_db
+deactivate clickhouse_consumer
+deactivate clickhouse_db
+end
+
+autonumber 19
+group get last activity
+my_movies_front -> ugc_api: [get] ugc request
+note right of my_movies_front
+Предварительно извлекает из кук access_token,
+расшифровывает и получает данные юзера
+end note
+activate ugc_api
+ugc_api -> postgresql_db: select last user activity
+activate postgresql_db
+ugc_api <-- postgresql_db: return user activity
+deactivate postgresql_db
+my_movies_front <-- ugc_api: response user activity OK
+deactivate ugc_api
+end
+
+user <-- my_movies_front: response save or get activity OK
+
+@enduml
