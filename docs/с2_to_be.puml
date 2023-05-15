@@ -14,10 +14,21 @@ participant async_api as async_api
 end box
 
 user -> my_movies_front : click login button
+note right of user
+Аутентификация пользователя
+end note
 my_movies_front -> auth_api : [post] user login
-my_movies_front <-- auth_api: response user data and set cookie access_token
-my_movies_front -> async_api : [get][headers: Cookie access_token] film_id
-my_movies_front <-- async_api: response film
+my_movies_front <-- auth_api: response user data OK and set cookie access_token
+user -> my_movies_front : user opens the movie service page
+note right of user
+Запрашивает какой-то контент
+end note
+my_movies_front -> async_api : [get][headers: Cookie access_token] async_api request
+my_movies_front <-- async_api: response content OK
+user -> my_movies_front : user commits some kind of activity
+note right of user
+Совершает какое-то действие
+end note
 
 |||
 
@@ -29,13 +40,12 @@ queue kafka as kafka
 database clickhouse_db as clickhouse_db
 end box
 
-autonumber 6
-group post
+autonumber 8
+group save activity
 my_movies_front -> ugc_api: [post] ugc request
 note right of my_movies_front
-Расшифровывает с помощью
-публичного ключа access_token
-из кук и получаем user_id
+Предварительно извлекает из кук access_token,
+расшифровывает и получает данные юзера
 end note
 activate ugc_api
 ugc_api -> kafka_producer: deliver event
@@ -54,20 +64,28 @@ my_movies_front <-- ugc_api: response OK
 deactivate ugc_api
 end
 
-autonumber 7
-group get
+autonumber 16
+kafka <- clickhouse_db: select events
+activate kafka
+activate clickhouse_db
+kafka --> clickhouse_db: events
+deactivate kafka
+deactivate clickhouse_db
+clickhouse_db -> clickhouse_db: insert events
+
+autonumber 19
+group get last activity
 my_movies_front -> ugc_api: [get] ugc request
 note right of my_movies_front
-Расшифровывает с помощью
-публичного ключа access_token
-из кук и получаем user_id
+Предварительно извлекает из кук access_token,
+расшифровывает и получает данные юзера
 end note
 activate ugc_api
 ugc_api -> postgresql_db: select last user activity
 activate postgresql_db
 ugc_api <-- postgresql_db: return user activity
 deactivate postgresql_db
-my_movies_front <-- ugc_api: response
+my_movies_front <-- ugc_api: response user activity OK
 deactivate ugc_api
 end
 
