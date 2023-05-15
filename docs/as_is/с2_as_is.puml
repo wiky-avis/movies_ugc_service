@@ -1,0 +1,33 @@
+@startuml
+
+title [C2]: AS IS
+
+autonumber
+skinparam sequenceMessageAlign center
+
+actor user as user
+
+box Movies (My) #LightGray
+participant my_movies_front as my_movies_front
+participant auth_api as auth_api
+participant async_api as async_api
+end box
+
+user -> my_movies_front : click login button
+note right of user
+Аутентификация пользователя
+end note
+my_movies_front -> auth_api : [post] user login
+my_movies_front <-- auth_api: response user data OK and set cookie access_token
+user -> my_movies_front : user opens the movie service page
+note right of user
+Запрашивает какой-то контент
+end note
+my_movies_front -> async_api : [get][headers: Cookie access_token] async_api request
+my_movies_front <-- async_api: response content OK
+user -> my_movies_front : user commits some kind of activity
+note right of user
+Совершает какое-то действие
+end note
+
+@enduml
