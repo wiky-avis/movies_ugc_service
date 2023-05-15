@@ -10,6 +10,7 @@
 !include DEVICONS/postgresql.puml
 !include DEVICONS/python.puml
 !include DEVICONS/webplatform.puml
+!include DEVICONS/django.puml
 skinparam backgroundColor MOTIVATION
 
 title [C1]: TO BE
@@ -26,7 +27,7 @@ Person(Admin, "Администратор", "Заносит контент в а
 System_Boundary(wb, "Web") {
     Container(web_app, "Web Client", $sprite="webplatform")
 }
-Container(admin_service, "Admin Panel", "Создание/редактирование контента")
+Container(admin_service, "Admin Panel", "Создание/редактирование контента", $sprite="django")
 Container(auth_service, "Auth Service", "Сервис аутентификации")
 Container(async_api_service, "Async API", "Сервис для получения информации по контенту")
 Container(etl_service, "ETL Service", "Переносит данные из БД в Еластик", $tags="etl", $sprite="python")
