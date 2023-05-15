@@ -72,9 +72,9 @@ activate kafka
 activate clickhouse_consumer
 kafka --> clickhouse_consumer: events
 deactivate kafka
-deactivate clickhouse_consumer
 clickhouse_consumer -> clickhouse_db: insert events
 activate clickhouse_db
+deactivate clickhouse_consumer
 deactivate clickhouse_db
 end
 
