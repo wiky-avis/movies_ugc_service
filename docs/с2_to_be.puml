@@ -29,7 +29,7 @@ queue kafka as kafka
 database clickhouse_db as clickhouse_db
 end box
 
-autonumber 1
+autonumber 6
 group post
 my_movies_front -> ugc_api: [post] ugc request
 note right of my_movies_front
@@ -54,7 +54,7 @@ my_movies_front <-- ugc_api: response OK
 deactivate ugc_api
 end
 
-autonumber 2
+autonumber 7
 group get
 my_movies_front -> ugc_api: [get] ugc request
 note right of my_movies_front
