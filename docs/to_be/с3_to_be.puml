@@ -1,0 +1,99 @@
+@startuml
+
+title [C3]: TO BE
+
+autonumber
+skinparam sequenceMessageAlign center
+
+box Movies (My) #LightGray
+participant my_movies_front as my_movies_front
+end box
+
+|||
+
+box UGC Service #lightBlue
+participant ugc_api as ugc_api
+participant kafka_producer as kafka_producer
+database postgresql_db as postgresql_db
+queue kafka as kafka
+participant clickhouse_consumer as clickhouse_consumer
+database ugc.user_progress as ugc.user_progress
+end box
+
+== API ==
+
+my_movies_front -> ugc_api: [post] ugc request - viewed frame - api/v1/view_progress/{film_id}
+note right of my_movies_front
+Предварительно извлекает из кук access_token,
+расшифровывает и получает данные юзера
+end note
+activate ugc_api
+
+group Invalid or missing token
+my_movies_front <-- ugc_api: Error 401 - Undefined user
+end
+
+ugc_api -> kafka_producer: Connect to kafka and activate producer
+activate kafka_producer
+ugc_api <-- kafka_producer: Producer reference
+ugc_api -> kafka_producer: deliver event
+kafka_producer -> kafka: publish event
+activate kafka
+kafka_producer <-- kafka: return
+deactivate kafka
+kafka_producer -> postgresql_db: insert or update user activity
+activate postgresql_db
+kafka_producer <-- postgresql_db: return
+deactivate postgresql_db
+ugc_api <-- kafka_producer: return
+deactivate kafka_producer
+my_movies_front <-- ugc_api: response OK
+deactivate ugc_api
+
+== ETL ==
+
+box CLickhouse #SandyBrown
+participant clickhouse_consumer as clickhouse_consumer
+database ugc.user_progress_queue as ugc.user_progress_queue
+database ugc.user_progress_mv as ugc.user_progress_mv
+database ugc.user_progress as ugc.user_progress
+end box
+
+kafka <- clickhouse_consumer: select events from progress-topic
+note right of clickhouse_consumer
+Работает на основе KafkaTableEngine
+end note
+activate kafka
+activate clickhouse_consumer
+kafka --> clickhouse_consumer: events
+deactivate kafka
+clickhouse_consumer -> ugc.user_progress_queue: insert events
+deactivate clickhouse_consumer
+activate ugc.user_progress_queue
+ugc.user_progress_queue -> ugc.user_progress_mv: gather all table contents
+deactivate ugc.user_progress_queue
+activate ugc.user_progress_mv
+ugc.user_progress_mv -> ugc.user_progress: load to final table
+note left of ugc.user_progress
+В эту таблицу ходят аналитики
+end note
+activate ugc.user_progress
+deactivate ugc.user_progress_mv
+deactivate ugc.user_progress
+
+
+== Get last activity ==
+my_movies_front -> ugc_api: [get] ugc request
+note right of my_movies_front
+Предварительно извлекает из кук access_token,
+расшифровывает и получает данные юзера
+end note
+activate ugc_api
+ugc_api -> postgresql_db: select last user activity
+activate postgresql_db
+ugc_api <-- postgresql_db: return user activity
+deactivate postgresql_db
+my_movies_front <-- ugc_api: response user activity OK
+deactivate ugc_api
+
+@enduml
