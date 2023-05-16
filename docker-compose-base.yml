@@ -42,6 +42,15 @@ services:
     volumes:
       - ./data/db/node2:/etc/clickhouse-server
 
+  mongodb:
+    image: mongo:latest
+    env_file:
+      - .env
+    expose:
+      - "${MONGO_PORT}"
+    volumes:
+      - mongodb_data_container:/data/db
+
   fastapi:
     build: 
       context: ./.

@@ -36,10 +36,16 @@ services:
       service: clickhouse-node2
     depends_on:
       - zookeeper
-  
+
+  mongodb:
+    extends:
+      file: docker-compose-base.yml
+      service: mongodb
+
   fastapi:
     extends:
       file: docker-compose-base.yml
       service: fastapi
     depends_on:
+      - mongodb
       - broker
