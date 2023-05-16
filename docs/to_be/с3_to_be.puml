@@ -5,30 +5,9 @@ title [C3]: TO BE
 autonumber
 skinparam sequenceMessageAlign center
 
-actor user as user
-
 box Movies (My) #LightGray
 participant my_movies_front as my_movies_front
-participant auth_api as auth_api
-participant async_api as async_api
 end box
-
-user -> my_movies_front : click login button
-note right of user
-Аутентификация пользователя
-end note
-my_movies_front -> auth_api : [post] user login
-my_movies_front <-- auth_api: response user data OK and set cookie access_token
-user -> my_movies_front : user opens the movie service page
-note right of user
-Запрашивает какой-то контент
-end note
-my_movies_front -> async_api : [get][headers: Cookie access_token] async_api request
-my_movies_front <-- async_api: response content OK
-user -> my_movies_front : user commits some kind of activity
-note right of user
-Совершает какое-то действие
-end note
 
 |||
 
@@ -41,8 +20,8 @@ participant clickhouse_consumer as clickhouse_consumer
 database ugc.user_progress as ugc.user_progress
 end box
 
+== API ==
 
-group save activity
 my_movies_front -> ugc_api: [post] ugc request - viewed frame - api/v1/view_progress/{film_id}
 note right of my_movies_front
 Предварительно извлекает из кук access_token,
@@ -70,9 +49,8 @@ ugc_api <-- kafka_producer: return
 deactivate kafka_producer
 my_movies_front <-- ugc_api: response OK
 deactivate ugc_api
-end
 
-|||
+== ETL ==
 
 box CLickhouse #SandyBrown
 participant clickhouse_consumer as clickhouse_consumer
@@ -81,7 +59,6 @@ database ugc.user_progress_mv as ugc.user_progress_mv
 database ugc.user_progress as ugc.user_progress
 end box
 
-group ETL
 kafka <- clickhouse_consumer: select events from progress-topic
 note right of clickhouse_consumer
 Работает на основе KafkaTableEngine
@@ -103,10 +80,9 @@ end note
 activate ugc.user_progress
 deactivate ugc.user_progress_mv
 deactivate ugc.user_progress
-end
 
 
-group get last activity
+== Get last activity ==
 my_movies_front -> ugc_api: [get] ugc request
 note right of my_movies_front
 Предварительно извлекает из кук access_token,
@@ -119,8 +95,5 @@ ugc_api <-- postgresql_db: return user activity
 deactivate postgresql_db
 my_movies_front <-- ugc_api: response user activity OK
 deactivate ugc_api
-end
-
-user <-- my_movies_front: response save or get activity OK
 
 @enduml
