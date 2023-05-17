@@ -12,15 +12,14 @@ class Container(containers.DeclarativeContainer):
     )
 
     kafka_producer = providers.Factory(kafka_producer.KafkaProducer)
+    db_client = providers.Factory(db.MongoDbConnector)
+    user_activity_repository = providers.Factory(
+        user_activity.UserActivityRepository,
+        client=db_client,
+    )
 
     user_activity_service = providers.Factory(
         user_activity_service.UserActivityService,
         producer=kafka_producer,
-    )
-
-    db_client = providers.Factory(db.MongoDbConnector)
-
-    user_activity_repository = providers.Factory(
-        user_activity.UserActivityRepository,
-        client=db_client,
+        repository=user_activity_repository,
     )

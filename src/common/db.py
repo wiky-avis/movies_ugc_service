@@ -15,5 +15,5 @@ class MongoDbConnector:
     @classmethod
     async def close(cls):
         if cls.db_client:
-            await cls.db_client.close()
+            cls.db_client.close()
             cls.db_client = None
