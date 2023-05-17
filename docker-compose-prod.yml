@@ -36,10 +36,25 @@ services:
       service: clickhouse-node2
     depends_on:
       - zookeeper
-  
+
+  mongo:
+    extends:
+      file: docker-compose-base.yml
+      service: mongo
+    expose:
+      - "${DB_PORT}"
+
+  mongo-express:
+    extends:
+      file: docker-compose-base.yml
+      service: mongo-express
+    expose:
+      - "${ME_PORT}"
+
   fastapi:
     extends:
       file: docker-compose-base.yml
       service: fastapi
     depends_on:
+      - mongo
       - broker

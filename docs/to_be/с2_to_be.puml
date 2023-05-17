@@ -35,7 +35,7 @@ end note
 box UGC Service #lightBlue
 participant ugc_api as ugc_api
 participant kafka_producer as kafka_producer
-database postgresql_db as postgresql_db
+database mongo_db as mongo_db
 queue kafka as kafka
 participant clickhouse_consumer as clickhouse_consumer
 database clickhouse_db as clickhouse_db
@@ -49,14 +49,14 @@ note right of my_movies_front
 расшифровывает и получает данные юзера
 end note
 activate ugc_api
+ugc_api -> mongo_db: insert or update user activity
+activate mongo_db
+ugc_api <-- mongo_db: return
+deactivate mongo_db
 ugc_api -> kafka_producer: deliver event
 activate kafka_producer
 kafka_producer -> kafka: publish event
 activate kafka
-kafka_producer -> postgresql_db: insert or update user activity
-activate postgresql_db
-kafka_producer <-- postgresql_db: return
-deactivate postgresql_db
 kafka_producer <-- kafka: return
 deactivate kafka
 ugc_api <-- kafka_producer: return
@@ -86,10 +86,10 @@ note right of my_movies_front
 расшифровывает и получает данные юзера
 end note
 activate ugc_api
-ugc_api -> postgresql_db: select last user activity
-activate postgresql_db
-ugc_api <-- postgresql_db: return user activity
-deactivate postgresql_db
+ugc_api -> mongo_db: select last user activity
+activate mongo_db
+ugc_api <-- mongo_db: return user activity
+deactivate mongo_db
 my_movies_front <-- ugc_api: response user activity OK
 deactivate ugc_api
 end

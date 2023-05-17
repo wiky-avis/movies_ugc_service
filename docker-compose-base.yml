@@ -42,9 +42,32 @@ services:
     volumes:
       - ./data/db/node2:/etc/clickhouse-server
 
+  mongo:
+    image: mongo:4.2.24
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo:/data/db
+    env_file:
+      - ./.env
+
+  mongo-express:
+    image: mongo-express:0.54.0
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${ME_CONFIG_MONGODB_URL}
+
   fastapi:
     build: 
       context: ./.
       dockerfile: src/api/Dockerfile
     env_file:
       - ./.env
+
+volumes:
+  mongo:

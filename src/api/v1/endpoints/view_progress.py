@@ -6,7 +6,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.api.v1.models.responses import InternalServerError, NotFound
-from src.api.v1.models.view_progress import SaveViewProgressInput
+from src.api.v1.models.view_progress import SaveViewProgressInput, ViewProgress
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
 from src.services.user_activity_service import UserActivityService
@@ -36,7 +36,39 @@ async def saving_view_progress(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
+    user_activity_data = dict(
+        film_id=film_id,
+        viewed_frame=body.viewed_frame,
+        user_id=user_id,
+    )
 
-    return await user_view_service.save_view_progress(
-        film_id=film_id, viewed_frame=body.viewed_frame, user_id=user_id
+    await user_view_service.insert_or_update_view_progress(user_activity_data)
+
+    return await user_view_service.send_view_progress(user_activity_data)
+
+
+@router.get(
+    "/view_progress/{film_id}",
+    response_model=ViewProgress,
+    responses={404: {"model": NotFound}},
+    summary="Получение временной метки о просмотре фильма.",
+    description="Получить временную метку о просмотре фильма, на которой остановился пользователь.",
+)
+@inject
+async def get_view_progress(
+    film_id: str,
+    user_view_service: UserActivityService = Depends(
+        Provide[Container.user_activity_service]
+    ),
+    user_data=Depends(get_decoded_data),
+) -> ViewProgress:
+    user_id = dpath.get(user_data, "user_id", default=None)
+    if not user_id:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Undefined user.",
+        )
+
+    return await user_view_service.get_last_view_progress(
+        dict(user_id=user_id, film_id=film_id)
     )
