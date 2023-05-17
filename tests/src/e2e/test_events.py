@@ -8,11 +8,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_kafka_request(
-    aiohttp_session,
-    event_consumer,
-    db_client,
-    user_settings,
-    get_encoded_token,
+    aiohttp_session, event_consumer, olap_client, user_settings
 ):
     # Отправляем черех API просмотренный фрейм
     film_id = "dc3825a9-8668-400e-b083-97aa24081352"
@@ -34,18 +30,18 @@ async def test_kafka_request(
     await asyncio.sleep(5)
 
     # # Подключаемся к кликхаусу и смотрим, что там появилось событие
-    result = db_client.query(
+    result = olap_client.query(
         "SELECT user_id, film_id, viewed_frame FROM ugc.user_progress"
     )
 
     frames = set()
 
     for row in result.result_rows:
-        db_user_id = str(row[0])
-        db_film_id = str(row[1])
-        db_viewed_frame = row[2]
+        olap_user_id = str(row[0])
+        olap_film_id = str(row[1])
+        olap_viewed_frame = row[2]
 
-        if db_user_id == user_id and db_film_id == film_id:
-            frames.add(db_viewed_frame)
+        if olap_user_id == user_id and olap_film_id == film_id:
+            frames.add(olap_viewed_frame)
 
     assert body["viewed_frame"] in frames

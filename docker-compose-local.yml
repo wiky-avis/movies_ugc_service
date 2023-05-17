@@ -84,7 +84,7 @@ services:
   # e2e-tests:
   #   image: fastapi-image
   #   entrypoint: >
-  #     sh -c "pytest tests/e2e -rx"
+  #     sh -c "pytest tests/src/e2e"
   #   env_file:
   #     - ./.env
   #   depends_on:
