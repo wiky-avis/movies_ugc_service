@@ -1,6 +1,7 @@
 import sys
 
-sys.path.insert(0, '/home/tirax/movies_ugc_service')
+
+sys.path.insert(0, "/home/tirax/movies_ugc_service")
 
 
 pytest_plugins = (

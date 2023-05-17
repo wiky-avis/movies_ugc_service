@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer, TopicPartition
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 from src.settings.kafka import KafkaConsumerSettings, KafkaProduserSettings
 
@@ -8,16 +8,12 @@ from src.settings.kafka import KafkaConsumerSettings, KafkaProduserSettings
 @pytest.fixture(scope="session")
 def producer_settings():
     settings = KafkaProduserSettings()
-    # settings.bootstrap_servers = "localhost:9092"
-    
     return settings
 
 
 @pytest.fixture(scope="session")
 def consumer_settings():
     settings = KafkaConsumerSettings()
-    # settings.bootstrap_servers = "localhost:9092"
-    
     return settings
 
 
