@@ -7,9 +7,6 @@ from src.settings.db import DBSettings
 @pytest.fixture(scope="session")
 def db_settings():
     settings = DBSettings()
-    # settings.host = 'localhost'
-    # settings.url = 'localhost:8123'
-
     return settings
 
 
