@@ -44,7 +44,7 @@ async def saving_view_progress(
 
     await user_view_service.insert_or_update_view_progress(user_activity_data)
 
-    return await user_view_service.send_view_progress(**user_activity_data)
+    return await user_view_service.send_view_progress(user_activity_data)
 
 
 @router.get(

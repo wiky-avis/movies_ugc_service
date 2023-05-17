@@ -3,6 +3,7 @@ from datetime import datetime
 from http import HTTPStatus
 from typing import NoReturn
 
+import dpath
 import orjson
 from fastapi import HTTPException
 from starlette.responses import JSONResponse
@@ -26,9 +27,21 @@ class UserActivityService(BaseService):
     async def send(self, key: bytes, value: bytes) -> NoReturn:
         await self._producer.send(key=key, value=value)
 
-    async def send_view_progress(
-        self, film_id: str, viewed_frame: int, user_id: str
-    ) -> NoReturn:
+    async def send_view_progress(self, data: dict) -> NoReturn:
+        user_id = dpath.get(data, "user_id", default=None)
+        film_id = dpath.get(data, "film_id", default=None)
+        viewed_frame = dpath.get(data, "viewed_frame", default=None)
+        if not user_id or not film_id or not viewed_frame:
+            logger.warning(
+                "Error send view_progress: user_id %s film_id.",
+                user_id,
+                film_id,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Error sending the event",
+            )
+
         view_progress = UserViewProgressEventModel(
             user_id=user_id,
             film_id=film_id,
@@ -58,10 +71,21 @@ class UserActivityService(BaseService):
 
     async def insert_or_update_view_progress(self, data: dict):
         table_name = "view_progress"
-        filter_query = {
-            "film_id": data.get("film_id"),
-            "user_id": data.get("user_id"),
-        }
+        user_id = dpath.get(data, "user_id", default=None)
+        film_id = dpath.get(data, "film_id", default=None)
+        if not user_id or not film_id:
+            logger.warning(
+                "Error insert or update view_progress: table_name %s user_id %s film_id.",
+                table_name,
+                user_id,
+                film_id,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Error save view_progress",
+            )
+
+        filter_query = dict(film_id=film_id, user_id=user_id)
 
         if await self._repository.find_one(
             filter_=filter_query, table_name=table_name
@@ -82,6 +106,11 @@ class UserActivityService(BaseService):
             filter_query, table_name
         )
         if not user_view_progress:
+            logger.warning(
+                "View_progress not found: table_name %s filter_query %s.",
+                table_name,
+                filter_query,
+            )
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
                 detail="User has no saved progress",
