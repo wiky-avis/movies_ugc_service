@@ -73,7 +73,8 @@ class UserActivityService(BaseService):
         table_name = "view_progress"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
-        if not user_id or not film_id:
+        viewed_frame = dpath.get(data, "viewed_frame", default=None)
+        if not user_id or not film_id or not viewed_frame:
             logger.warning(
                 "Error insert or update view_progress: table_name %s user_id %s film_id.",
                 table_name,
@@ -86,14 +87,13 @@ class UserActivityService(BaseService):
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
-
         if await self._repository.find_one(
             filter_=filter_query, table_name=table_name
         ):
             await self._repository.update_one(
                 filter_=filter_query,
                 key="viewed_frame",
-                value=data.get("viewed_frame"),
+                value=viewed_frame,
                 table_name=table_name,
             )
         else:
