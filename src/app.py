@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from src.api.v1.endpoints import view_progress
 from src.brokers.kafka_producer import KafkaProducer
+from src.common.db import MongoDbConnector
 from src.containers import Container
 from src.settings import logger, settings
 
@@ -14,12 +15,8 @@ def create_app() -> FastAPI:
     container.wire(modules=[sys.modules[__name__]])
 
     app = FastAPI(
-        on_startup=[
-            KafkaProducer.setup,
-        ],
-        on_shutdown=[
-            KafkaProducer.close,
-        ],
+        on_startup=[KafkaProducer.setup, MongoDbConnector.setup],
+        on_shutdown=[KafkaProducer.close, MongoDbConnector.close],
         title="test",
         openapi_url="/openapi.json",
         docs_url="/swagger",

@@ -2,9 +2,18 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from src.settings.db import db_settings
 
-client = AsyncIOMotorClient(db_settings.db_url, serverSelectionTimeoutMS=5000)
-db = client[db_settings.db_name]
 
+class MongoDbConnector:
+    db_client: AsyncIOMotorClient = None
 
-async def get_session() -> AsyncIOMotorClient:
-    return db
+    @classmethod
+    async def setup(cls):
+        cls.db_client = AsyncIOMotorClient(
+            db_settings.db_url, serverSelectionTimeoutMS=5000
+        )
+
+    @classmethod
+    async def close(cls):
+        if cls.db_client:
+            await cls.db_client.close()
+            cls.db_client = None
