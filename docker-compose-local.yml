@@ -55,12 +55,19 @@ services:
       - zookeeper
       - broker
 
-  mongodb:
+  mongo:
     extends:
       file: docker-compose-base.yml
-      service: mongodb
+      service: mongo
     ports:
-      - "27017:27017"
+      - '6000:27017'
+
+  mongo-express:
+    extends:
+      file: docker-compose-base.yml
+      service: mongo-express
+    ports:
+      - "8081:8081"
 
   fastapi:
     extends:

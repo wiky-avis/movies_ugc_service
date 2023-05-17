@@ -37,15 +37,27 @@ services:
     depends_on:
       - zookeeper
 
-  mongodb:
+  mongo:
     extends:
       file: docker-compose-base.yml
-      service: mongodb
+      service: mongo
+    expose:
+      - "${DB_PORT}"
+
+  mongo-express:
+    image: mongo-express:0.54.0
+    restart: always
+    expose:
+      - "${ME_PORT}"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: user
+      ME_CONFIG_MONGODB_ADMINPASSWORD: pass
+      ME_CONFIG_MONGODB_URL: ${ME_CONFIG_MONGODB_URL}
 
   fastapi:
     extends:
       file: docker-compose-base.yml
       service: fastapi
     depends_on:
-      - mongodb
+      - mongo
       - broker
