@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from http import HTTPStatus
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 import dpath
 import orjson
@@ -69,7 +69,7 @@ class UserActivityService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def insert_or_update_view_progress(self, data: dict):
+    async def insert_or_update_view_progress(self, data: dict) -> NoReturn:
         table_name = "view_progress"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
@@ -99,7 +99,9 @@ class UserActivityService(BaseService):
         else:
             await self._repository.insert_one(data=data, table_name=table_name)
 
-    async def get_last_view_progress(self, filter_query: dict):
+    async def get_last_view_progress(
+        self, filter_query: dict
+    ) -> Optional[ViewProgress]:
         table_name = "view_progress"
 
         user_view_progress = await self._repository.find_one(
