@@ -17,5 +17,9 @@ def db_client(db_settings):
         port=db_settings.port,
         username=db_settings.username,
     )
+    
+    client.command('truncate table if exists ugc.user_progress')
 
     yield client
+    
+    client.command('truncate table if exists ugc.user_progress')
