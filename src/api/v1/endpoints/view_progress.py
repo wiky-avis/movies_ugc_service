@@ -50,7 +50,7 @@ async def saving_view_progress(
 @router.get(
     "/view_progress/{film_id}",
     response_model=ViewProgress,
-    responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
+    responses={404: {"model": NotFound}},
     summary="Получение временной метки о просмотре фильма.",
     description="Получить временную метку о просмотре фильма, на которой остановился пользователь.",
 )
