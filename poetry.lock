@@ -892,6 +892,21 @@ files = [
 ]
 
 [[package]]
+name = "faker"
+version = "18.9.0"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Faker-18.9.0-py3-none-any.whl", hash = "sha256:defe9ed618a67ebf0f3eb1895e198c2355a7128a09087a6dce342ef2253263ea"},
+    {file = "Faker-18.9.0.tar.gz", hash = "sha256:80a5ea1464556c06b98bf47ea3adc7f33811a1182518d847860b1874080bd3c9"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "fastapi"
 version = "0.95.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -1641,6 +1656,21 @@ docs = ["sphinx (>=5.3)", "sphinx-rtd-theme (>=1.0)"]
 testing = ["coverage (>=6.2)", "flaky (>=3.5.0)", "hypothesis (>=5.7.1)", "mypy (>=0.931)", "pytest-trio (>=0.7.0)"]
 
 [[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+]
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
 name = "python-dotenv"
 version = "1.0.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -1806,6 +1836,22 @@ h11 = ">=0.8"
 standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "watchfiles (>=0.13)", "websockets (>=10.4)"]
 
 [[package]]
+name = "vertica-python"
+version = "1.3.2"
+description = "Official native Python client for the Vertica database."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "vertica-python-1.3.2.tar.gz", hash = "sha256:3664f0610c16cd5d606b8bbe5c0a50359b1e979d9383c07967bbd49d4990a02f"},
+    {file = "vertica_python-1.3.2-py3-none-any.whl", hash = "sha256:e0096e430c0f8249dae0e15c1dd0d28a4e7fcd5216e12643d48eadc8e1cb0540"},
+]
+
+[package.dependencies]
+python-dateutil = ">=1.5"
+six = ">=1.10.0"
+
+[[package]]
 name = "yarl"
 version = "1.9.2"
 description = "Yet another URL library"
@@ -1955,4 +2001,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "ee7736c8ee8bbd07b460f00b01646ddbf8d3e371c4fbb54074538936bfccf0f3"
+content-hash = "36b0f08901600f6baebcef5e1d2270fd2a197ecb4c37b42789fba4f789ebcfcf"
