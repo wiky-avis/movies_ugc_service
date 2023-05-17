@@ -4,6 +4,8 @@ import uuid
 from clickhouse_driver import Client
 from faker import Faker
 
+from research.clickhouse.constants import batch_size, end_ts, start_ts
+
 
 client: Client = Client("localhost")
 client.execute(
@@ -27,7 +29,6 @@ def insert_data(num_batches: int) -> None:
     Функция для вставки данных в ClickHouse
     :param num_batches: количество пачек данных
     """
-    batch_size = 10000
     total_records = batch_size * num_batches
 
     start_time = time.time()
@@ -54,16 +55,16 @@ def insert_data(num_batches: int) -> None:
     print("Скорость вставки: %s записей/сек" % insertion_speed)
 
 
-def read_data(start_ts: str, end_ts: str):
+def read_data(start_dt: str, end_dt: str):
     """
     Функция для чтения данных из ClickHouse
-    :param start_ts: начальная дата для выборки
-    :param end_ts: конечная дата для выборки
+    :param start_dt: начальная дата для выборки
+    :param end_dt: конечная дата для выборки
     """
     start_time = time.time()
 
     result = client.execute(
-        f"SELECT * FROM test_user_progress WHERE ts >= '{start_ts}' AND ts <= '{end_ts}'"
+        f"SELECT * FROM test_user_progress WHERE ts >= '{start_dt}' AND ts <= '{end_dt}'"
     )
 
     end_time = time.time()
@@ -84,4 +85,4 @@ if __name__ == "__main__":
     insert_data(300)  # 3000000
     insert_data(500)  # 5000000
 
-    read_data(start_ts="2022-01-01 00:00:00", end_ts="2023-01-01 00:00:00")
+    read_data(start_ts, end_ts)

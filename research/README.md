@@ -3,7 +3,7 @@
 В каталогах clickhouse и vertica выполнить команды:
 ```shell
 docker-compose up -d
-python3.11 run_tests.py
+python run_tests.py
 docker-compose down
 ```
 # Clickhouse
