@@ -36,18 +36,15 @@ async def saving_view_progress(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
-
-    await user_view_service.insert_or_update_view_progress(
-        dict(
-            user_id=user_id,
-            film_id=film_id,
-            viewed_frame=body.viewed_frame,
-        )
+    user_activity_data = dict(
+        film_id=film_id,
+        viewed_frame=body.viewed_frame,
+        user_id=user_id,
     )
 
-    return await user_view_service.save_view_progress(
-        film_id=film_id, viewed_frame=body.viewed_frame, user_id=user_id
-    )
+    await user_view_service.insert_or_update_view_progress(user_activity_data)
+
+    return await user_view_service.send_view_progress(**user_activity_data)
 
 
 @router.get(
@@ -64,7 +61,7 @@ async def get_view_progress(
         Provide[Container.user_activity_service]
     ),
     user_data=Depends(get_decoded_data),
-):
+) -> ViewProgress:
     user_id = dpath.get(user_data, "user_id", default=None)
     if not user_id:
         raise HTTPException(

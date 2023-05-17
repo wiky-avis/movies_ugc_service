@@ -26,7 +26,7 @@ class UserActivityService(BaseService):
     async def send(self, key: bytes, value: bytes) -> NoReturn:
         await self._producer.send(key=key, value=value)
 
-    async def save_view_progress(
+    async def send_view_progress(
         self, film_id: str, viewed_frame: int, user_id: str
     ) -> NoReturn:
         view_progress = UserViewProgressEventModel(
