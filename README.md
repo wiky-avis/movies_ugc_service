@@ -40,15 +40,15 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 2. Install dependencies - `poetry install`
 3. Run `pytest tests/src/unit`
 
-### Useful commands
+## Useful commands
 
-#### Production
+### Production
 
 - Up+build `make up-prod`
 - Up+build+detach `make up-prod-d`
 - Down `make down-prod`
 
-#### Development/test
+### Development/test
 
 - Up+build `make up-local`
 - Up+build+detach `make up-local-d`
@@ -69,7 +69,19 @@ More about C4 notation - https://c4model.com
 - As-Is - Infrastructure before this project
 - To-Be - Information about this project
 
-### Schemas images
+## Schemas images
+
+### AS IS
+
+#### C1 as is
+
+![C1 as is](docs/as_is/C1___AS_IS.png "C1 as is")
+
+#### C2 as is
+
+![C2 as is](docs/as_is/C2___AS_IS.png "C2 as is")
+
+### TO BE
 
 #### C1 to be
 
