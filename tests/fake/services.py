@@ -66,7 +66,7 @@ class FakeUARepository:
         if key in self.storage:
             value = self.storage[key]
         else:
-            value = None
+            return None
 
         return dict(
             user_id=user_id,
