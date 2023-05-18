@@ -63,7 +63,10 @@ class FakeUARepository:
         user_id = filter_["user_id"]
 
         key = f"{film_id}:{user_id}"
-        value = self.storage[key]
+        if key in self.storage:
+            value = self.storage[key]
+        else:
+            value = None
 
         return dict(
             user_id=user_id,
