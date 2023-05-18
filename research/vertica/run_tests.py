@@ -4,8 +4,8 @@ import uuid
 import vertica_python
 from faker import Faker
 
-from research.vertica.constants import batch_size, end_ts, start_ts
 
+batch_size = 10000
 
 conn_info = {
     "host": "localhost",
@@ -63,38 +63,36 @@ def insert_data(num_batches: int) -> None:
     print("Скорость вставки: %s записей/сек" % insertion_speed)
 
 
-def read_data(start_dt: str, end_dt: str):
+def read_data() -> None:
     """
     Функция для чтения данных из Vertica
-    :param start_dt: начальная дата для выборки
-    :param end_dt: конечная дата для выборки
     """
     start_time = time.time()
 
     cursor.execute(
-        f"SELECT * FROM test_user_progress WHERE ts >= '{start_dt}' AND ts <= '{end_dt}'"
+        """
+        SELECT
+            user_id,
+            sum(viewed_frame),
+            max(viewed_frame)
+        FROM test_user_progress
+        WHERE ts > '2022-12-01 00:00:00'
+        GROUP by user_id
+        """
     )
     result = cursor.fetchall()
 
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    print(f"Чтение {len(result)} записей заняло {elapsed_time} сек")
+    print(f"Агрегация {len(result)} записей заняло {elapsed_time} сек")
     read_speed = len(result) / elapsed_time
-    print(f"Скорость чтения: {read_speed} записей/сек")
+    print(f"Скорость: {read_speed} записей/сек")
 
 
 if __name__ == "__main__":
-    insert_data(5)  # 50000
-    insert_data(10)  # 100000
-    insert_data(15)  # 150000
-    insert_data(20)  # 200000
-    insert_data(50)  # 500000
-    insert_data(100)  # 1000000
-    insert_data(300)  # 3000000
-    insert_data(500)  # 5000000
-
-    read_data(start_ts, end_ts)
+    insert_data(1000)
+    read_data()
 
     cursor.close()
     conn.close()
