@@ -53,29 +53,16 @@ async def test_post_frame(input, expected, test_app_client):
         assert data[expected["key"]] == expected["response"]
 
 
-@pytest.mark.parametrize(
-    "input, expected",
-    [
-        (
-            {
-                "film_id": "e6a60937-fb0d-44d4-81f3-15d2170f1fe2",
-            },
-            {
-                "status_code": HTTPStatus.OK,
-            },
-        ),
-    ],
-)
 @pytest.mark.asyncio
-async def test_get_frame(input, expected, test_app_client):
-    film_id = input["film_id"]
+async def test_get_frame(test_app_client):
+    film_id = "e6a60937-fb0d-44d4-81f3-15d2170f1fe2"
 
     with app.container.user_activity_service.override(
         FakeUserActivityRepository()
     ):
         response = test_app_client.get(f"api/v1/view_progress/{film_id}")
 
-    assert response.status_code == expected["status_code"]
+    assert response.status_code == HTTPStatus.OK
     data = response.json()
-    assert data["film_id"] == input["film_id"]
-    assert data.get("viewed_frame") is not None
+    assert data["film_id"] == film_id
+    assert data.get("viewed_frame") == 123

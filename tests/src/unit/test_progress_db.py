@@ -20,7 +20,7 @@ async def test_ua_service_db_insert_value(frame_data):
         "table",
     )
 
-    assert stored.get("viewed_frame") is not None
+    assert stored.get("viewed_frame") == frame_data["viewed_frame"]
 
 
 @pytest.mark.asyncio
@@ -67,6 +67,6 @@ async def test_ua_service_db_insert_value_missing_parameters(
     local_data.pop(key_to_remove)
 
     with pytest.raises(HTTPException) as e_info:
-        await service.send_view_progress(local_data)
+        await service.insert_or_update_view_progress(local_data)
 
     assert e_info.value.status_code == HTTPStatus.BAD_REQUEST

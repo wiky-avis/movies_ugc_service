@@ -20,8 +20,9 @@ async def test_last_view_progress(frame_data):
 
     service = UserActivityService(producer, repository)
 
-    filter_ = frame_data.copy()
-    filter_.pop("viewed_frame")
+    filter_ = dict(
+        film_id=frame_data["film_id"], user_id=frame_data["user_id"]
+    )
 
     result = await service.get_last_view_progress(filter_)
 
@@ -34,8 +35,9 @@ async def test_last_view_progress_no_data(frame_data):
     repository = FakeUARepository()
     service = UserActivityService(producer, repository)
 
-    filter_ = frame_data.copy()
-    filter_.pop("viewed_frame")
+    filter_ = dict(
+        film_id=frame_data["film_id"], user_id=frame_data["user_id"]
+    )
 
     with pytest.raises(HTTPException) as e_info:
         await service.get_last_view_progress(filter_)

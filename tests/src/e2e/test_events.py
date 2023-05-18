@@ -12,9 +12,9 @@ async def test_kafka_request(
 ):
     # Отправляем черех API просмотренный фрейм
     film_id = "dc3825a9-8668-400e-b083-97aa24081352"
-    host = "http://fastapi:8000/api/v1/view_progress/" + film_id
+    host = f"http://fastapi:8000/api/v1/view_progress/{film_id}"
     user_id = user_settings["user_id"]
-    body = {"user_id": user_id, "viewed_frame": random.randint(1, 1000)}
+    body = {"viewed_frame": random.randint(1, 1000)}
     async with aiohttp_session.post(host, json=body) as resp:
         assert resp.status == HTTPStatus.OK
 

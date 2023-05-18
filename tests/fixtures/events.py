@@ -1,34 +1,13 @@
-import pytest
 import pytest_asyncio
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from aiokafka import AIOKafkaConsumer
 
-from src.settings.kafka import KafkaConsumerSettings, KafkaProduserSettings
-
-
-@pytest.fixture(scope="session")
-def producer_settings():
-    settings = KafkaProduserSettings()
-    return settings
-
-
-@pytest.fixture(scope="session")
-def consumer_settings():
-    settings = KafkaConsumerSettings()
-    return settings
-
-
-@pytest_asyncio.fixture(scope="session")
-async def event_producer(producer_settings):
-    producer = AIOKafkaProducer(
-        bootstrap_servers=producer_settings.bootstrap_servers
-    )
-    await producer.start()
-    yield producer
-    await producer.stop()
+from src.settings.kafka import KafkaConsumerSettings
 
 
 @pytest_asyncio.fixture(scope="session")
 async def event_consumer(event_loop, consumer_settings):
+    consumer_settings = KafkaConsumerSettings()
+
     consumer = AIOKafkaConsumer(
         consumer_settings.topic_name,
         loop=event_loop,
