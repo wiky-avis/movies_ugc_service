@@ -91,3 +91,6 @@ services:
   #     - broker
   #     - clickhouse-node1
   #     - fastapi
+
+volumes:
+  mongo:

@@ -10,4 +10,5 @@ pytest_plugins = (
     "fixtures.events",
     "fixtures.olap",
     "fixtures.jwt",
+    "fixtures.api",
 )
