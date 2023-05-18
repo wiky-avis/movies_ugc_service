@@ -12,3 +12,13 @@ def test_app_client():
 
     client = TestClient(app)
     return client
+
+
+@pytest.fixture()
+def frame_data():
+    frame_data = {
+        "user_id": "15b6f6c7-ac87-4f67-9dc9-b8ee824e10bd",
+        "film_id": "ae93cbdc-f147-41e1-b358-01aee63025aa",
+        "viewed_frame": 1234,
+    }
+    return frame_data
