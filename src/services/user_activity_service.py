@@ -33,7 +33,7 @@ class UserActivityService(BaseService):
         viewed_frame = dpath.get(data, "viewed_frame", default=None)
         if not user_id or not film_id or not viewed_frame:
             logger.warning(
-                "Error send view_progress: user_id %s film_id.",
+                "Error send view_progress: user_id %s film_id %s.",
                 user_id,
                 film_id,
             )
@@ -76,7 +76,7 @@ class UserActivityService(BaseService):
         viewed_frame = dpath.get(data, "viewed_frame", default=None)
         if not user_id or not film_id or not viewed_frame:
             logger.warning(
-                "Error insert or update view_progress: table_name %s user_id %s film_id.",
+                "Error insert or update view_progress: table_name %s user_id %s film_id %s.",
                 table_name,
                 user_id,
                 film_id,

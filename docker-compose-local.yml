@@ -70,6 +70,7 @@ services:
       - "8081:8081"
 
   fastapi:
+    image: fastapi-image
     extends:
       file: docker-compose-base.yml
       service: fastapi
@@ -78,3 +79,18 @@ services:
     depends_on:
       - mongo
       - broker
+
+
+  # e2e-tests:
+  #   image: fastapi-image
+  #   entrypoint: >
+  #     sh -c "pytest tests/src/e2e"
+  #   env_file:
+  #     - ./.env
+  #   depends_on:
+  #     - broker
+  #     - clickhouse-node1
+  #     - fastapi
+
+volumes:
+  mongo:
