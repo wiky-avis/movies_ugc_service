@@ -87,12 +87,11 @@ class UserActivityService(BaseService):
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
-        await self._repository.update_one(
+        await self._repository.upsert(
             filter_=filter_query,
             key="viewed_frame",
             value=viewed_frame,
             table_name=table_name,
-            upsert=True,
         )
 
     async def get_last_view_progress(
