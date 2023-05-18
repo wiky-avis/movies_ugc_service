@@ -65,7 +65,7 @@ services:
   fastapi:
     build: 
       context: ./.
-      dockerfile: src/api/Dockerfile
+      dockerfile: src/Dockerfile
     env_file:
       - ./.env
 
