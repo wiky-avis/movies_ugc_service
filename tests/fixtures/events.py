@@ -13,6 +13,7 @@ async def event_consumer(event_loop, consumer_settings):
         loop=event_loop,
         bootstrap_servers=consumer_settings.bootstrap_servers,
         auto_offset_reset="latest",
+        enable_auto_commit=False,
     )
     await consumer.start()
     yield consumer

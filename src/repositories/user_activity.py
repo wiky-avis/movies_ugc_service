@@ -15,10 +15,17 @@ class UserActivityRepository(BaseRepository):
         await collection.insert_one(data)
 
     async def update_one(
-        self, filter_: dict, key: str, value: Any, table_name: str
+        self,
+        filter_: dict,
+        key: str,
+        value: Any,
+        table_name: str,
+        upsert: bool
     ):
         collection = self._db[table_name]
-        await collection.update_one(filter_, {"$set": {key: value}})
+        await collection.update_one(
+            filter_, {"$set": {key: value}}, upsert=upsert
+        )
 
     async def find_one(self, filter_: dict, table_name: str):
         collection = self._db[table_name]

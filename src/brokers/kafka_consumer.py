@@ -25,6 +25,7 @@ class KafkaConsumer(BaseConsumer):
             loop=loop,
             bootstrap_servers=self.config.bootstrap_servers,
             auto_offset_reset="earliest",
+            enable_auto_commit=False,
         )
         await self.kafka_consumer.start()
 
