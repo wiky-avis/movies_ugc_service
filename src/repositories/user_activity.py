@@ -20,6 +20,14 @@ class UserActivityRepository(BaseRepository):
         collection = self._db[table_name]
         await collection.update_one(filter_, {"$set": {key: value}})
 
+    async def upsert(
+        self, filter_: dict, key: str, value: Any, table_name: str
+    ):
+        collection = self._db[table_name]
+        await collection.update_one(
+            filter_, {"$set": {key: value}}, upsert=True
+        )
+
     async def find_one(self, filter_: dict, table_name: str):
         collection = self._db[table_name]
         return await collection.find_one(filter_)

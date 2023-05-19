@@ -80,17 +80,16 @@ services:
       - mongo
       - broker
 
-
-  # e2e-tests:
-  #   image: fastapi-image
-  #   entrypoint: >
-  #     sh -c "pytest tests/src/e2e"
-  #   env_file:
-  #     - ./.env
-  #   depends_on:
-  #     - broker
-  #     - clickhouse-node1
-  #     - fastapi
+#  e2e-tests:
+#     image: fastapi-image
+#     entrypoint: >
+#       sh -c "pytest tests/src/e2e"
+#     env_file:
+#       - ./.env
+#     depends_on:
+#       - broker
+#       - clickhouse-node1
+#       - fastapi
 
 volumes:
   mongo:
