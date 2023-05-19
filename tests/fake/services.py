@@ -54,6 +54,21 @@ class FakeUARepository:
         key = f"{film_id}:{user_id}"
 
         self.storage[key] = value
+        
+    async def upsert(
+        self, filter_: dict, key: str, value: Any, table_name: str
+    ):
+        # filter_ = dict(film_id=film_id, user_id=user_id)
+        # key = "viewed_frame"
+        # value = viewed_frame
+        # table_name = "view_progress"
+
+        film_id = filter_["film_id"]
+        user_id = filter_["user_id"]
+
+        key = f"{film_id}:{user_id}"
+
+        self.storage[key] = value        
 
     async def find_one(self, filter_: dict, table_name: str):
         # filter_ = dict(film_id=film_id, user_id=user_id)

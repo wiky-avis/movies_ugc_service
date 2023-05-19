@@ -13,6 +13,6 @@ RUN poetry config virtualenvs.create false && poetry install
 
 COPY . .
 
-RUN chmod +x src/api/run.sh
+RUN chmod +x src/run.sh
 
-ENTRYPOINT ["/opt/app/src/api/run.sh"]
+ENTRYPOINT ["/opt/app/src/run.sh"]
