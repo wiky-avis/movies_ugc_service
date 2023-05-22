@@ -38,7 +38,7 @@ create table if not exists ugc.user_bookmarks_queue on cluster company_cluster
 ( 
     user_id UUID, 
     film_id UUID, 
-    is_deleted Bool, -- When added is false
+    event_type FixedString(10), -- add, delete
     ts DateTime
 ) engine=Kafka() 
 settings 
@@ -53,7 +53,7 @@ create table if not exists ugc.user_bookmarks on cluster company_cluster
 (
     user_id UUID, 
     film_id UUID, 
-    is_deleted Bool, -- When added is false
+    event_type FixedString(10), -- add, delete
     ts DateTime
 ) engine=MergeTree 
 partition by toYYYYMMDD(ts) 
