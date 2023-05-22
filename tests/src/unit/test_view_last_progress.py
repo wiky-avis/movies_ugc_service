@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from fastapi import HTTPException
 
-from src.services.user_activity_service import UserActivityService
+from src.services.user_view_history import UserViewHistoryService
 from tests.fake.services import FakeProducer, FakeUARepository
 
 
@@ -18,7 +18,7 @@ async def test_last_view_progress(frame_data):
     viewed_frame = frame_data["viewed_frame"]
     repository.storage[f"{film_id}:{user_id}"] = viewed_frame
 
-    service = UserActivityService(producer, repository)
+    service = UserViewHistoryService(producer, repository)
 
     filter_ = dict(
         film_id=frame_data["film_id"], user_id=frame_data["user_id"]
@@ -33,7 +33,7 @@ async def test_last_view_progress(frame_data):
 async def test_last_view_progress_no_data(frame_data):
     producer = FakeProducer()
     repository = FakeUARepository()
-    service = UserActivityService(producer, repository)
+    service = UserViewHistoryService(producer, repository)
 
     filter_ = dict(
         film_id=frame_data["film_id"], user_id=frame_data["user_id"]

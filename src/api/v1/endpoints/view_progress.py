@@ -9,7 +9,7 @@ from src.api.v1.models.responses import InternalServerError, NotFound
 from src.api.v1.models.view_progress import SaveViewProgressInput, ViewProgress
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
-from src.services.user_activity_service import UserActivityService
+from src.services.user_view_history import UserViewHistoryService
 
 
 router = APIRouter()
@@ -25,8 +25,8 @@ router = APIRouter()
 async def saving_view_progress(
     film_id: str,
     body: SaveViewProgressInput = Body(...),
-    user_view_service: UserActivityService = Depends(
-        Provide[Container.user_activity_service]
+    user_view_service: UserViewHistoryService = Depends(
+        Provide[Container.user_view_history]
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
@@ -57,8 +57,8 @@ async def saving_view_progress(
 @inject
 async def get_view_progress(
     film_id: str,
-    user_view_service: UserActivityService = Depends(
-        Provide[Container.user_activity_service]
+    user_view_service: UserViewHistoryService = Depends(
+        Provide[Container.user_view_history]
     ),
     user_data=Depends(get_decoded_data),
 ) -> ViewProgress:

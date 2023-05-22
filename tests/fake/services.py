@@ -54,7 +54,7 @@ class FakeUARepository:
         key = f"{film_id}:{user_id}"
 
         self.storage[key] = value
-        
+
     async def upsert(
         self, filter_: dict, key: str, value: Any, table_name: str
     ):
@@ -68,7 +68,7 @@ class FakeUARepository:
 
         key = f"{film_id}:{user_id}"
 
-        self.storage[key] = value        
+        self.storage[key] = value
 
     async def find_one(self, filter_: dict, table_name: str):
         # filter_ = dict(film_id=film_id, user_id=user_id)

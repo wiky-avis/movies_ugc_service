@@ -1,17 +1,17 @@
 import logging
 from datetime import datetime
 from http import HTTPStatus
-from typing import NoReturn, Optional
+from typing import NoReturn
 
 import dpath
 import orjson
 from fastapi import HTTPException
+from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
-from src.api.v1.models.view_progress import ViewProgress
+from src.api.v1.models.bookmarks import UserBookmark
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
-from src.brokers.models import UserViewProgressEventModel
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
 
@@ -19,7 +19,7 @@ from src.services.base import BaseService
 logger = logging.getLogger(__name__)
 
 
-class UserActivityService(BaseService):
+class UserBookmarksService(BaseService):
     def __init__(self, producer: BaseProducer, repository: BaseRepository):
         self._producer = producer
         self._repository = repository
@@ -27,25 +27,26 @@ class UserActivityService(BaseService):
     async def send(self, key: bytes, value: bytes) -> NoReturn:
         await self._producer.send(key=key, value=value)
 
-    async def send_view_progress(self, data: dict) -> NoReturn:
+    async def send_event_bookmark(self, data: dict) -> NoReturn:
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
-        viewed_frame = dpath.get(data, "viewed_frame", default=None)
-        if not user_id or not film_id or not viewed_frame:
+        event_type = dpath.get(data, "event_type", default=None)
+        if not user_id or not film_id:
             logger.warning(
-                "Error send view_progress: user_id %s film_id %s.",
+                "Error send new_bookmark: user_id %s film_id %s event_type %s.",
                 user_id,
                 film_id,
+                event_type,
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail="Error sending the event",
             )
 
-        view_progress = UserViewProgressEventModel(
+        view_progress = UserBookmark(
             user_id=user_id,
             film_id=film_id,
-            viewed_frame=viewed_frame,
+            event_type=event_type,
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
@@ -57,9 +58,10 @@ class UserActivityService(BaseService):
             )
         except ProducerError:
             logger.warning(
-                "Error sending the event: film_id %s user_id %s",
+                "Error sending the event: film_id %s user_id %s event_type %s",
                 film_id,
                 user_id,
+                event_type,
                 exc_info=True,
             )
             raise HTTPException(
@@ -69,47 +71,36 @@ class UserActivityService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def insert_or_update_view_progress(self, data: dict) -> NoReturn:
-        table_name = "view_progress"
+    async def insert_or_update_bookmark(
+        self, data: dict, is_deleted: bool = False
+    ) -> NoReturn:
+        table_name = "user_bookmarks"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
-        viewed_frame = dpath.get(data, "viewed_frame", default=None)
-        if not user_id or not film_id or not viewed_frame:
+        if not user_id or not film_id:
             logger.warning(
-                "Error insert or update view_progress: table_name %s user_id %s film_id %s.",
+                "Error insert or update user bookmark: table_name %s user_id %s film_id %s.",
                 table_name,
                 user_id,
                 film_id,
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error save view_progress",
+                detail="Error save bookmark",
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
-        await self._repository.upsert(
-            filter_=filter_query,
-            key="viewed_frame",
-            value=viewed_frame,
-            table_name=table_name,
-        )
-
-    async def get_last_view_progress(
-        self, filter_query: dict
-    ) -> Optional[ViewProgress]:
-        table_name = "view_progress"
-
-        user_view_progress = await self._repository.find_one(
-            filter_query, table_name
-        )
-        if not user_view_progress:
-            logger.warning(
-                "View_progress not found: table_name %s filter_query %s.",
-                table_name,
+        try:
+            await self._repository.upsert(
+                filter_=filter_query,
+                key="is_deleted",
+                value=is_deleted,
+                table_name=table_name,
+            )
+        except ServerSelectionTimeoutError:
+            logger.error(
+                "MongoDb Error. Failed to create or update a user bookmark: filter_query %s, table_name %s",
                 filter_query,
+                table_name,
+                exc_info=True,
             )
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail="User has no saved progress",
-            )
-        return ViewProgress(**user_view_progress)

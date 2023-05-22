@@ -12,7 +12,7 @@ async def event_consumer(event_loop, consumer_settings):
         consumer_settings.topic_name,
         loop=event_loop,
         bootstrap_servers=consumer_settings.bootstrap_servers,
-        auto_offset_reset="latest"
+        auto_offset_reset="latest",
     )
     await consumer.start()
     yield consumer
