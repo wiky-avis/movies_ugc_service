@@ -26,7 +26,7 @@ async def saving_view_progress(
     film_id: str,
     body: SaveViewProgressInput = Body(...),
     user_view_service: UserViewHistoryService = Depends(
-        Provide[Container.user_view_history]
+        Provide[Container.user_view_history_service]
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
@@ -58,7 +58,7 @@ async def saving_view_progress(
 async def get_view_progress(
     film_id: str,
     user_view_service: UserViewHistoryService = Depends(
-        Provide[Container.user_view_history]
+        Provide[Container.user_view_history_service]
     ),
     user_data=Depends(get_decoded_data),
 ) -> ViewProgress:

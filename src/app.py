@@ -3,7 +3,7 @@ import sys
 import uvicorn as uvicorn
 from fastapi import FastAPI
 
-from src.api.v1.endpoints import view_progress
+from src.api.v1.endpoints import bookmarks, view_progress
 from src.brokers.kafka_producer import KafkaProducer
 from src.common.db import MongoDbConnector
 from src.containers import Container
@@ -25,6 +25,7 @@ def create_app() -> FastAPI:
     app.container = container
 
     app.include_router(view_progress.router, prefix="/api/v1")
+    app.include_router(bookmarks.router, prefix="/api/v1")
 
     return app
 

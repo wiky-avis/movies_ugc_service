@@ -8,7 +8,10 @@ from src.services import user_bookmarks, user_view_history
 
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
-        modules=["src.api.v1.endpoints.view_progress"]
+        modules=[
+            "src.api.v1.endpoints.view_progress",
+            "src.api.v1.endpoints.bookmarks",
+        ]
     )
 
     kafka_producer = providers.Factory(kafka_producer.KafkaProducer)
@@ -18,13 +21,13 @@ class Container(containers.DeclarativeContainer):
         client=db_client,
     )
 
-    user_view_history = providers.Factory(
+    user_view_history_service = providers.Factory(
         user_view_history.UserViewHistoryService,
         producer=kafka_producer,
         repository=user_activity_repository,
     )
 
-    user_bookmarks = providers.Factory(
+    user_bookmarks_service = providers.Factory(
         user_bookmarks.UserBookmarksService,
         producer=kafka_producer,
         repository=user_activity_repository,
