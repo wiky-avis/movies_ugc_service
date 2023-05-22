@@ -31,3 +31,7 @@ class UserActivityRepository(BaseRepository):
     async def find_one(self, filter_: dict, table_name: str):
         collection = self._db[table_name]
         return await collection.find_one(filter_)
+
+    def find(self, filter_: dict, columns: dict, table_name: str):
+        collection = self._db[table_name]
+        return collection.find(filter_, columns)

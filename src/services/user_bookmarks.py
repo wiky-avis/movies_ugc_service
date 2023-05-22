@@ -104,3 +104,15 @@ class UserBookmarksService(BaseService):
                 table_name,
                 exc_info=True,
             )
+
+    async def get_bookmarks_by_user_id(self, user_id: str) -> list[str]:
+        table_name = "user_bookmarks"
+
+        filter_ = dict(user_id=user_id, is_deleted=False)
+        result = [
+            doc["film_id"]
+            async for doc in self._repository.find(
+                filter_, {"film_id": 1}, table_name
+            )
+        ]
+        return result

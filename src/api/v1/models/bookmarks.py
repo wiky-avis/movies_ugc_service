@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 from pydantic import BaseModel
 
@@ -13,3 +14,7 @@ class UserBookmark(BaseModel):
     film_id: str
     event_type: EventType = EventType.ADDED
     ts: str
+
+
+class UserBookmarkResponse(BaseModel):
+    film_ids: List[str] = list()

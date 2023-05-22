@@ -78,3 +78,28 @@ async def delete_bookmark(
     )
 
     return await user_bookmarks_service.send_event_bookmark(user_bookmark_data)
+
+
+@router.get(
+    "/bookmarks/list",
+    responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
+    summary="",
+    description="",
+)
+@inject
+async def get_user_bookmarks(
+    user_bookmarks_service: UserBookmarksService = Depends(
+        Provide[Container.user_bookmarks_service]
+    ),
+    user_data=Depends(get_decoded_data),
+) -> list[str]:
+    user_id = dpath.get(user_data, "user_id", default=None)
+    if not user_id:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Undefined user.",
+        )
+
+    return await user_bookmarks_service.get_bookmarks_by_user_id(
+        user_id=user_id
+    )

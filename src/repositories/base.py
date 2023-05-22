@@ -13,3 +13,7 @@ class BaseRepository(ABC):
     @abstractmethod
     async def find_one(self, *args, **kwargs):
         pass
+
+    @abstractmethod
+    async def find(self, *args, **kwargs):
+        pass
