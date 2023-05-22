@@ -1,5 +1,5 @@
 import logging
-from typing import NoReturn
+from typing import NoReturn, Awaitable
 
 import backoff
 from aiokafka import AIOKafkaProducer, errors
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class KafkaProducer(BaseProducer):
     config = KafkaProduserSettings()
-    kafka_producer = None
+    kafka_producer: AIOKafkaProducer = None
 
     @classmethod
     @backoff.on_exception(
@@ -32,7 +32,7 @@ class KafkaProducer(BaseProducer):
             await cls.kafka_producer.stop()
             cls._producer = None
 
-    async def send(self, key: bytes, value: bytes) -> NoReturn:
+    async def send(self, key: bytes, value: bytes) -> NoReturn[Awaitable]:
         try:
             await self.kafka_producer.send_and_wait(
                 topic=self.config.topic_name, key=key, value=value

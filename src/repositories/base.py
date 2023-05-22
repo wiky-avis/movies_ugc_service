@@ -15,5 +15,9 @@ class BaseRepository(ABC):
         pass
 
     @abstractmethod
+    async def upsert(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
     async def find(self, *args, **kwargs):
         pass
