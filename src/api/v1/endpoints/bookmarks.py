@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.api.v1.models.bookmarks import EventType
-from src.api.v1.models.responses import InternalServerError, NotFound
+from src.api.v1.models.responses import InternalServerError
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
 from src.services.user_bookmarks import UserBookmarksService
@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.post(
     "/bookmarks/{film_id}",
-    responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
+    responses={500: {"model": InternalServerError}},
     summary="Добавить фильм в закладки.",
     description="Добавление фильма в закладки пользователя.",
 )
@@ -49,7 +49,7 @@ async def add_bookmark(
 
 @router.delete(
     "/bookmarks/{film_id}",
-    responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
+    responses={500: {"model": InternalServerError}},
     summary="Удалить фильм из закладок.",
     description="Удаление фильма из закладок поьзователя.",
 )
