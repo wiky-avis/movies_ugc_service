@@ -18,8 +18,8 @@ router = APIRouter()
 @router.post(
     "/bookmarks/{film_id}",
     responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
-    summary="",
-    description="",
+    summary="Добавить фильм в закладки.",
+    description="Добавление фильма в закладки пользователя.",
 )
 @inject
 async def add_bookmark(
@@ -42,7 +42,7 @@ async def add_bookmark(
         user_id=user_id,
     )
 
-    await user_bookmarks_service.insert_or_update_bookmark(user_bookmark_data)
+    await user_bookmarks_service.create_bookmark(user_bookmark_data)
 
     return await user_bookmarks_service.send_event_bookmark(user_bookmark_data)
 
@@ -50,8 +50,8 @@ async def add_bookmark(
 @router.delete(
     "/bookmarks/{film_id}",
     responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
-    summary="",
-    description="",
+    summary="Удалить фильм из закладок.",
+    description="Удаление фильма из закладок поьзователя.",
 )
 @inject
 async def delete_bookmark(
@@ -73,18 +73,16 @@ async def delete_bookmark(
         user_id=user_id,
     )
 
-    await user_bookmarks_service.insert_or_update_bookmark(
-        user_bookmark_data, is_deleted=True
-    )
+    await user_bookmarks_service.delete_bookmark(user_bookmark_data)
 
     return await user_bookmarks_service.send_event_bookmark(user_bookmark_data)
 
 
 @router.get(
     "/bookmarks/list",
-    responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
-    summary="",
-    description="",
+    responses={500: {"model": InternalServerError}},
+    summary="Список закладок пользователя.",
+    description="Получить список film_id пользователя которые находятся у него в закладках.",
 )
 @inject
 async def get_user_bookmarks(

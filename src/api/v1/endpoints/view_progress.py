@@ -36,15 +36,17 @@ async def saving_view_progress(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
-    user_activity_data = dict(
+    user_view_progress_data = dict(
         film_id=film_id,
         viewed_frame=body.viewed_frame,
         user_id=user_id,
     )
 
-    await user_view_service.insert_or_update_view_progress(user_activity_data)
+    await user_view_service.insert_or_update_view_progress(
+        user_view_progress_data
+    )
 
-    return await user_view_service.send_view_progress(user_activity_data)
+    return await user_view_service.send_view_progress(user_view_progress_data)
 
 
 @router.get(

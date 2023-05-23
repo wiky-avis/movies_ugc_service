@@ -71,9 +71,37 @@ class UserBookmarksService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def insert_or_update_bookmark(
-        self, data: dict, is_deleted: bool = False
-    ) -> NoReturn:
+    async def create_bookmark(self, data: dict) -> NoReturn:
+        table_name = "user_bookmarks"
+        user_id = dpath.get(data, "user_id", default=None)
+        film_id = dpath.get(data, "film_id", default=None)
+        if not user_id or not film_id:
+            logger.warning(
+                "Error insert or update user bookmark: table_name %s user_id %s film_id %s.",
+                table_name,
+                user_id,
+                film_id,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Error save bookmark",
+            )
+
+        query = dict(film_id=film_id, user_id=user_id, is_deleted=False)
+        try:
+            await self._repository.insert_one(
+                data=query,
+                table_name=table_name,
+            )
+        except ServerSelectionTimeoutError:
+            logger.error(
+                "MongoDb Error. Failed to create a user bookmark: filter_query %s, table_name %s",
+                query,
+                table_name,
+                exc_info=True,
+            )
+
+    async def delete_bookmark(self, data: dict) -> NoReturn:
         table_name = "user_bookmarks"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
@@ -90,20 +118,21 @@ class UserBookmarksService(BaseService):
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
-        try:
-            await self._repository.upsert(
-                filter_=filter_query,
-                key="is_deleted",
-                value=is_deleted,
-                table_name=table_name,
-            )
-        except ServerSelectionTimeoutError:
-            logger.error(
-                "MongoDb Error. Failed to create or update a user bookmark: filter_query %s, table_name %s",
-                filter_query,
-                table_name,
-                exc_info=True,
-            )
+        if await self._repository.find_one(filter_query, table_name):
+            try:
+                await self._repository.update_one(
+                    filter_=filter_query,
+                    key="is_deleted",
+                    value=True,
+                    table_name=table_name,
+                )
+            except ServerSelectionTimeoutError:
+                logger.error(
+                    "MongoDb Error. Failed to deleted a user bookmark: filter_query %s, table_name %s",
+                    filter_query,
+                    table_name,
+                    exc_info=True,
+                )
 
     async def get_bookmarks_by_user_id(self, user_id: str) -> list[str]:
         table_name = "user_bookmarks"
