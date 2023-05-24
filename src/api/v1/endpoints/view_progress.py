@@ -9,7 +9,7 @@ from src.api.v1.models.responses import InternalServerError, NotFound
 from src.api.v1.models.view_progress import SaveViewProgressInput, ViewProgress
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
-from src.services.user_activity_service import UserActivityService
+from src.services.user_view_history import UserViewHistoryService
 
 
 router = APIRouter()
@@ -25,8 +25,8 @@ router = APIRouter()
 async def saving_view_progress(
     film_id: str,
     body: SaveViewProgressInput = Body(...),
-    user_view_service: UserActivityService = Depends(
-        Provide[Container.user_activity_service]
+    user_view_service: UserViewHistoryService = Depends(
+        Provide[Container.user_view_history_service]
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
@@ -36,15 +36,17 @@ async def saving_view_progress(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
-    user_activity_data = dict(
+    user_view_progress_data = dict(
         film_id=film_id,
         viewed_frame=body.viewed_frame,
         user_id=user_id,
     )
 
-    await user_view_service.insert_or_update_view_progress(user_activity_data)
+    await user_view_service.insert_or_update_view_progress(
+        user_view_progress_data
+    )
 
-    return await user_view_service.send_view_progress(user_activity_data)
+    return await user_view_service.send_view_progress(user_view_progress_data)
 
 
 @router.get(
@@ -57,8 +59,8 @@ async def saving_view_progress(
 @inject
 async def get_view_progress(
     film_id: str,
-    user_view_service: UserActivityService = Depends(
-        Provide[Container.user_activity_service]
+    user_view_service: UserViewHistoryService = Depends(
+        Provide[Container.user_view_history_service]
     ),
     user_data=Depends(get_decoded_data),
 ) -> ViewProgress:

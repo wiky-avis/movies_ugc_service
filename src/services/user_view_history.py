@@ -6,6 +6,7 @@ from typing import NoReturn, Optional
 import dpath
 import orjson
 from fastapi import HTTPException
+from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
 from src.api.v1.models.view_progress import ViewProgress
@@ -19,7 +20,7 @@ from src.services.base import BaseService
 logger = logging.getLogger(__name__)
 
 
-class UserActivityService(BaseService):
+class UserViewHistoryService(BaseService):
     def __init__(self, producer: BaseProducer, repository: BaseRepository):
         self._producer = producer
         self._repository = repository
@@ -87,12 +88,20 @@ class UserActivityService(BaseService):
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
-        await self._repository.upsert(
-            filter_=filter_query,
-            key="viewed_frame",
-            value=viewed_frame,
-            table_name=table_name,
-        )
+        try:
+            await self._repository.upsert(
+                filter_=filter_query,
+                key="viewed_frame",
+                value=viewed_frame,
+                table_name=table_name,
+            )
+        except ServerSelectionTimeoutError:
+            logger.error(
+                "MongoDb Error. Failed to create or update a user view progress: filter_query %s, table_name %s",
+                filter_query,
+                table_name,
+                exc_info=True,
+            )
 
     async def get_last_view_progress(
         self, filter_query: dict

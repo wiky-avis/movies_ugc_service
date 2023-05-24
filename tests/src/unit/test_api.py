@@ -38,7 +38,7 @@ from tests.fake.services import FakeUserActivityRepository
 async def test_post_frame(input, expected, test_app_client):
     film_id = input["film_id"]
 
-    with app.container.user_activity_service.override(
+    with app.container.user_view_history.override(
         FakeUserActivityRepository()
     ):
         response = test_app_client.post(
@@ -57,7 +57,7 @@ async def test_post_frame(input, expected, test_app_client):
 async def test_get_frame(test_app_client):
     film_id = "e6a60937-fb0d-44d4-81f3-15d2170f1fe2"
 
-    with app.container.user_activity_service.override(
+    with app.container.user_view_history.override(
         FakeUserActivityRepository()
     ):
         response = test_app_client.get(f"api/v1/view_progress/{film_id}")

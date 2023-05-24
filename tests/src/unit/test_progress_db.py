@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from fastapi import HTTPException
 
-from src.services.user_activity_service import UserActivityService
+from src.services.user_view_history import UserViewHistoryService
 from tests.fake.services import FakeProducer, FakeUARepository
 
 
@@ -11,7 +11,7 @@ from tests.fake.services import FakeProducer, FakeUARepository
 async def test_ua_service_db_insert_value(frame_data):
     producer = FakeProducer()
     repository = FakeUARepository()
-    service = UserActivityService(producer, repository)
+    service = UserViewHistoryService(producer, repository)
 
     await service.insert_or_update_view_progress(frame_data)
 
@@ -27,7 +27,7 @@ async def test_ua_service_db_insert_value(frame_data):
 async def test_ua_service_db_update_value(frame_data):
     producer = FakeProducer()
     repository = FakeUARepository()
-    service = UserActivityService(producer, repository)
+    service = UserViewHistoryService(producer, repository)
 
     # Первый фрейм
     frame_1 = frame_data.copy()
@@ -61,7 +61,7 @@ async def test_ua_service_db_update_value(frame_data):
 async def test_ua_service_db_insert_value_missing_parameters(
     frame_data, key_to_remove
 ):
-    service = UserActivityService(FakeProducer(), FakeUARepository())
+    service = UserViewHistoryService(FakeProducer(), FakeUARepository())
 
     local_data = frame_data.copy()
     local_data.pop(key_to_remove)
