@@ -10,7 +10,7 @@ from fastapi_pagination import paginate
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
-from src.api.v1.models.view_progress import ViewProgress
+from src.api.v1.models.view_progress import FilmView, ViewProgress
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.brokers.models import UserViewProgressEventModel
@@ -128,7 +128,7 @@ class UserViewHistoryService(BaseService):
         table_name = "view_progress"
 
         result = [
-            doc
+            FilmView(film_id=doc["_id"], count=doc["count"])
             async for doc in self._repository.get_films_watching_now(
                 table_name=table_name
             )
