@@ -2,6 +2,7 @@ import sys
 
 import uvicorn as uvicorn
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
 from src.api import v1
 from src.brokers.kafka_producer import KafkaProducer
@@ -23,6 +24,7 @@ def create_app() -> FastAPI:
         openapi_prefix="",
     )
     app.container = container
+    add_pagination(app)
 
     app.include_router(v1.router)
 

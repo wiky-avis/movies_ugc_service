@@ -35,3 +35,12 @@ class UserActivityRepository(BaseRepository):
     def find(self, filter_: dict, columns: dict, table_name: str):
         collection = self._db[table_name]
         return collection.find(filter_, columns)
+
+    def get_films_watching_now(self, table_name: str):
+        collection = self._db[table_name]
+        return collection.aggregate(
+            [
+                {"$group": {"_id": "$film_id", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}},
+            ]
+        )

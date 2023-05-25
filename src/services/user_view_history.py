@@ -6,6 +6,7 @@ from typing import NoReturn, Optional
 import dpath
 import orjson
 from fastapi import HTTPException
+from fastapi_pagination import paginate
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
@@ -122,3 +123,14 @@ class UserViewHistoryService(BaseService):
                 detail="User has no saved progress",
             )
         return ViewProgress(**user_view_progress)
+
+    async def get_films_ids_watching_now(self):
+        table_name = "view_progress"
+
+        result = [
+            doc
+            async for doc in self._repository.get_films_watching_now(
+                table_name=table_name
+            )
+        ]
+        return paginate(sequence=result)

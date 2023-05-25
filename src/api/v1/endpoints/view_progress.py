@@ -1,9 +1,12 @@
 from http import HTTPStatus
 
 import dpath
+import orjson
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi_pagination import Page
+from pydantic import BaseModel, Field
 
 from src.api.v1.models.responses import InternalServerError, NotFound
 from src.api.v1.models.view_progress import SaveViewProgressInput, ViewProgress
@@ -74,3 +77,37 @@ async def get_view_progress(
     return await user_view_service.get_last_view_progress(
         dict(user_id=user_id, film_id=film_id)
     )
+
+
+def orjson_dumps(v, *, default):
+    return orjson.dumps(v, default=default).decode()
+
+
+class FilmOut(BaseModel):
+    film_id: str = Field(alias="_id")
+    count: int
+
+    class Config:
+        allow_population_by_field_name = True
+        json_loads = orjson.loads
+        json_dumps = orjson_dumps
+
+
+Page = Page.with_custom_options(
+    size=Field(20, ge=1, le=100),
+)
+
+
+@router.get(
+    "/watching_now",
+    summary="Список фильмов которые сейчас смотрят.",
+    description="Список film_id которые пользователи сейчас смотрят, отсортированные по количеству пользователей.",
+)
+@inject
+async def watching_now(
+    user_view_service: UserViewHistoryService = Depends(
+        Provide[Container.user_view_history_service]
+    ),
+) -> Page[FilmOut]:
+    res = await user_view_service.get_films_ids_watching_now()
+    return res
