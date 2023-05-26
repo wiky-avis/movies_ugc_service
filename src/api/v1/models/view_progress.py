@@ -10,3 +10,8 @@ class ViewProgress(BaseModel):
     film_id: str
     viewed_frame: int
     ts: str
+
+
+class FilmView(BaseModel):
+    film_id: str
+    count: int
