@@ -1,7 +1,7 @@
 name: Проверка
 on: [push]
 jobs:
-  linter:
+  build:
 
     name: Линтер
     runs-on: ubuntu-latest
@@ -31,6 +31,13 @@ jobs:
         JWT_ALGORITHM: HS256
         JWT_SECRET: AUTH_SERVICE_SECRET_PUBLIC_KEY
 
+  telegram:
+
+    name: Сообщение в Телеграм
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Send to Telegram
       uses: appleboy/telegram-action@master
       with:
