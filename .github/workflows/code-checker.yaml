@@ -1,9 +1,9 @@
-name: Проверка
+name: CICD
 on: [push]
 jobs:
   build:
 
-    name: Линтер
+    name: Линтеры и Тесты
     runs-on: ubuntu-latest
     strategy:
       matrix:
