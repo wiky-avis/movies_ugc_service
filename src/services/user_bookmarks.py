@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 from http import HTTPStatus
-from typing import NoReturn
 
 import dpath
 import orjson
@@ -9,7 +8,7 @@ from fastapi import HTTPException
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
-from src.api.v1.models.bookmarks import UserBookmark
+from src.api.v1.models.bookmarks import EventType, UserBookmark
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.repositories.base import BaseRepository
@@ -24,13 +23,13 @@ class UserBookmarksService(BaseService):
         self._producer = producer
         self._repository = repository
 
-    async def send(self, key: bytes, value: bytes) -> NoReturn:
+    async def send(self, key: bytes, value: bytes) -> None:
         await self._producer.send(key=key, value=value)
 
-    async def send_event_bookmark(self, data: dict) -> NoReturn:
-        user_id = dpath.get(data, "user_id", default=None)
-        film_id = dpath.get(data, "film_id", default=None)
-        event_type = dpath.get(data, "event_type", default=None)
+    async def send_event_bookmark(self, data: dict) -> JSONResponse:
+        user_id = str(dpath.get(data, "user_id", default=None))
+        film_id = str(dpath.get(data, "film_id", default=None))
+        event_type = EventType(dpath.get(data, "event_type", default=None))
         if not user_id or not film_id:
             logger.warning(
                 "Error send new_bookmark: user_id %s film_id %s event_type %s.",
@@ -71,7 +70,7 @@ class UserBookmarksService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def create_bookmark(self, data: dict) -> NoReturn:
+    async def create_bookmark(self, data: dict) -> None:
         table_name = "user_bookmarks"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
@@ -101,7 +100,7 @@ class UserBookmarksService(BaseService):
                 exc_info=True,
             )
 
-    async def delete_bookmark(self, data: dict) -> NoReturn:
+    async def delete_bookmark(self, data: dict) -> None:
         table_name = "user_bookmarks"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)

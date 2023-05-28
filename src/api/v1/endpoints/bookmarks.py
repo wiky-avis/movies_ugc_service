@@ -91,7 +91,7 @@ async def get_user_bookmarks(
     ),
     user_data=Depends(get_decoded_data),
 ) -> list[str]:
-    user_id = dpath.get(user_data, "user_id", default=None)
+    user_id = str(dpath.get(user_data, "user_id", default=None))
     if not user_id:
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,

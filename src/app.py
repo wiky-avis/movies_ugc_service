@@ -23,7 +23,7 @@ def create_app() -> FastAPI:
         docs_url="/swagger",
         openapi_prefix="",
     )
-    app.container = container
+    app.container = container  # type: ignore
     add_pagination(app)
 
     app.include_router(v1.router)

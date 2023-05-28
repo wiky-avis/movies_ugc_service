@@ -26,4 +26,6 @@ class KafkaConsumerSettings(BaseKafkaSettings):
         env="CONSUMER_TOPIC_NAME", default="progress-topic"
     )
     timeout_ms: int = Field(env="CONSUMER_TIMEOUT_MS", default=1000)
-    max_records: Optional[int] = Field(env="CONSUMER_MAX_RECORDS", default=None)
+    max_records: Optional[int] = Field(
+        env="CONSUMER_MAX_RECORDS", default=None
+    )
