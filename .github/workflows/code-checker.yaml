@@ -27,7 +27,7 @@ jobs:
       run: make linters
 
     - name: Запуск тестов
-      run: pytest tests/src/unit
+      run: python -m pytest tests/src/unit
       env:
         JWT_ALGORITHM: HS256
 
