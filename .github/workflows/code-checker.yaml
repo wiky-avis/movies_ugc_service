@@ -21,3 +21,8 @@ jobs:
         pip install flake8==6.0.0 black==23.3.0 isort==5.12.0 mypy==1.3.0
     - name: Запуск линтеров
       run: make linters
+    - name: Запуск тестов
+      run: pytest tests/src/unit
+      env:
+        JWT_ALGORITHM: HS256
+

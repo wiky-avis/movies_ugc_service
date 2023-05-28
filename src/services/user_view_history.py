@@ -31,9 +31,9 @@ class UserViewHistoryService(BaseService):
         await self._producer.send(key=key, value=value)
 
     async def send_view_progress(self, data: dict) -> JSONResponse:
-        user_id = str(dpath.get(data, "user_id", default=None))
-        film_id = str(dpath.get(data, "film_id", default=None))
-        viewed_frame = int(str(dpath.get(data, "viewed_frame", default=None)))
+        user_id = dpath.get(data, "user_id", default=None)
+        film_id = dpath.get(data, "film_id", default=None)
+        viewed_frame = dpath.get(data, "viewed_frame", default=None)
         if not user_id or not film_id or not viewed_frame:
             logger.warning(
                 "Error send view_progress: user_id %s film_id %s.",
@@ -46,9 +46,9 @@ class UserViewHistoryService(BaseService):
             )
 
         view_progress = UserViewProgressEventModel(
-            user_id=user_id,
-            film_id=film_id,
-            viewed_frame=viewed_frame,
+            user_id=user_id,  # type: ignore[arg-type]
+            film_id=film_id,  # type: ignore[arg-type]
+            viewed_frame=viewed_frame,  # type: ignore[arg-type]
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 

@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
-from src.api.v1.models.bookmarks import EventType, UserBookmark
+from src.api.v1.models.bookmarks import UserBookmark
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.repositories.base import BaseRepository
@@ -27,9 +27,9 @@ class UserBookmarksService(BaseService):
         await self._producer.send(key=key, value=value)
 
     async def send_event_bookmark(self, data: dict) -> JSONResponse:
-        user_id = str(dpath.get(data, "user_id", default=None))
-        film_id = str(dpath.get(data, "film_id", default=None))
-        event_type = EventType(dpath.get(data, "event_type", default=None))
+        user_id = dpath.get(data, "user_id", default=None)
+        film_id = dpath.get(data, "film_id", default=None)
+        event_type = dpath.get(data, "event_type", default=None)
         if not user_id or not film_id:
             logger.warning(
                 "Error send new_bookmark: user_id %s film_id %s event_type %s.",
@@ -43,9 +43,9 @@ class UserBookmarksService(BaseService):
             )
 
         view_progress = UserBookmark(
-            user_id=user_id,
-            film_id=film_id,
-            event_type=event_type,
+            user_id=user_id,  # type: ignore[arg-type]
+            film_id=film_id,  # type: ignore[arg-type]
+            event_type=event_type,  # type: ignore[arg-type]
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
