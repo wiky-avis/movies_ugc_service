@@ -29,4 +29,5 @@ jobs:
       run: python -m pytest tests/src/unit
       env:
         JWT_ALGORITHM: HS256
+        JWT_SECRET: AUTH_SERVICE_SECRET_PUBLIC_KEY
 
