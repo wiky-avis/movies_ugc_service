@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "~3.11"
+python = "^3.10"
 pyjwt = "2.6.0"
 cryptography = "40.0.2"
 fastapi = "0.95.1"
