@@ -1,3 +1,4 @@
+# mypy: disable-error-code="misc"
 from fastapi_pagination import Page
 from pydantic import Field
 

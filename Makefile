@@ -7,7 +7,11 @@ black:
 isort:
 	isort .
 
-linters: isort black flake8
+mypy:
+	mypy src --explicit-package-bases
+
+
+linters: isort black flake8 mypy
 
 up-prod:
 	docker-compose -f docker-compose-prod.yml up --build

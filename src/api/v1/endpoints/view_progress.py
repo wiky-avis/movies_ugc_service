@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Optional
 
 import dpath
 from dependency_injector.wiring import Provide, inject
@@ -68,7 +69,7 @@ async def get_view_progress(
         Provide[Container.user_view_history_service]
     ),
     user_data=Depends(get_decoded_data),
-) -> ViewProgress:
+) -> Optional[ViewProgress]:
     user_id = dpath.get(user_data, "user_id", default=None)
     if not user_id:
         raise HTTPException(

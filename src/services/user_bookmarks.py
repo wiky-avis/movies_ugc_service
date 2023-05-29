@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 from http import HTTPStatus
-from typing import NoReturn
 
 import dpath
 import orjson
@@ -24,10 +23,10 @@ class UserBookmarksService(BaseService):
         self._producer = producer
         self._repository = repository
 
-    async def send(self, key: bytes, value: bytes) -> NoReturn:
+    async def send(self, key: bytes, value: bytes) -> None:
         await self._producer.send(key=key, value=value)
 
-    async def send_event_bookmark(self, data: dict) -> NoReturn:
+    async def send_event_bookmark(self, data: dict) -> JSONResponse:
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
         event_type = dpath.get(data, "event_type", default=None)
@@ -44,9 +43,9 @@ class UserBookmarksService(BaseService):
             )
 
         view_progress = UserBookmark(
-            user_id=user_id,
-            film_id=film_id,
-            event_type=event_type,
+            user_id=user_id,  # type: ignore[arg-type]
+            film_id=film_id,  # type: ignore[arg-type]
+            event_type=event_type,  # type: ignore[arg-type]
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
@@ -71,7 +70,7 @@ class UserBookmarksService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def create_bookmark(self, data: dict) -> NoReturn:
+    async def create_bookmark(self, data: dict) -> None:
         table_name = "user_bookmarks"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
@@ -101,7 +100,7 @@ class UserBookmarksService(BaseService):
                 exc_info=True,
             )
 
-    async def delete_bookmark(self, data: dict) -> NoReturn:
+    async def delete_bookmark(self, data: dict) -> None:
         table_name = "user_bookmarks"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)

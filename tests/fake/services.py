@@ -2,6 +2,8 @@ from typing import Any
 
 from starlette.responses import JSONResponse
 
+from src.api.v1.models.view_progress import ViewProgress
+
 
 class FakeUserActivityRepository:
     async def send_view_progress(self, data: dict):
@@ -11,10 +13,11 @@ class FakeUserActivityRepository:
         pass
 
     async def get_last_view_progress(self, filter_query: dict):
-        return dict(
+        return ViewProgress(
             user_id=filter_query["user_id"],
             film_id=filter_query["film_id"],
             viewed_frame=123,
+            ts="1234",
         )
 
 
@@ -87,4 +90,5 @@ class FakeUARepository:
             user_id=user_id,
             film_id=film_id,
             viewed_frame=value,
+            ts="1234",
         )

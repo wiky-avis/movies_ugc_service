@@ -18,9 +18,9 @@ async def test_ua_service_save_progress(frame_data):
 @pytest.mark.parametrize(
     "key_to_remove",
     [
-        ("user_id"),
-        ("film_id"),
-        ("viewed_frame"),
+        "user_id",
+        "film_id",
+        "viewed_frame",
     ],
 )
 @pytest.mark.asyncio

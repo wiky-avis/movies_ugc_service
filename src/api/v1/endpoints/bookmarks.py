@@ -99,5 +99,5 @@ async def get_user_bookmarks(
         )
 
     return await user_bookmarks_service.get_bookmarks_by_user_id(
-        user_id=user_id
+        user_id=user_id  # type: ignore[arg-type]
     )

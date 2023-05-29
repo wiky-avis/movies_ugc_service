@@ -1,7 +1,8 @@
+# mypy: disable-error-code="attr-defined"
 import logging
 from datetime import datetime
 from http import HTTPStatus
-from typing import NoReturn, Optional
+from typing import Optional
 
 import dpath
 import orjson
@@ -26,10 +27,10 @@ class UserViewHistoryService(BaseService):
         self._producer = producer
         self._repository = repository
 
-    async def send(self, key: bytes, value: bytes) -> NoReturn:
+    async def send(self, key: bytes, value: bytes) -> None:
         await self._producer.send(key=key, value=value)
 
-    async def send_view_progress(self, data: dict) -> NoReturn:
+    async def send_view_progress(self, data: dict) -> JSONResponse:
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)
         viewed_frame = dpath.get(data, "viewed_frame", default=None)
@@ -45,9 +46,9 @@ class UserViewHistoryService(BaseService):
             )
 
         view_progress = UserViewProgressEventModel(
-            user_id=user_id,
-            film_id=film_id,
-            viewed_frame=viewed_frame,
+            user_id=user_id,  # type: ignore[arg-type]
+            film_id=film_id,  # type: ignore[arg-type]
+            viewed_frame=viewed_frame,  # type: ignore[arg-type]
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
@@ -71,7 +72,7 @@ class UserViewHistoryService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def insert_or_update_view_progress(self, data: dict) -> NoReturn:
+    async def insert_or_update_view_progress(self, data: dict) -> None:
         table_name = "view_progress"
         user_id = dpath.get(data, "user_id", default=None)
         film_id = dpath.get(data, "film_id", default=None)

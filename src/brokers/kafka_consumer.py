@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class KafkaConsumer(BaseConsumer):
-    config = KafkaConsumerSettings()
-    kafka_consumer = None
+    config: KafkaConsumerSettings = KafkaConsumerSettings()
+    kafka_consumer: AIOKafkaConsumer = None
 
     async def start(self):
         loop = asyncio.get_event_loop()
