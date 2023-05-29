@@ -1,0 +1,54 @@
+version: '3.4'
+services:
+
+  logstash:
+    image: logstash:7.10.1
+    environment:
+      XPACK_MONITORING_ENABLED: false
+      ES_HOST: elasticsearch:9200
+    volumes:
+      - ./logstash/logstash.conf:/config/logstash.conf:ro
+      - /tmp/logs/nginx/:/var/log/nginx/:ro
+    command: logstash -f /config/logstash.conf
+    ports:
+      - "5044:5044/udp"
+
+  elasticsearch:
+    image: elasticsearch:7.10.1
+    environment:
+      discovery.type: single-node
+    volumes:
+      - /tmp/esdata:/tmp/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:7.10.1
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: elastic/filebeat:7.10.1
+    volumes:
+      - /tmp/logs/nginx:/var/log/nginx:ro
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - logstash
+      - elasticsearch
+      - kibana
+    links:
+      - logstash
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"

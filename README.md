@@ -13,6 +13,9 @@
 - NoSQL Database - MongoDB
 - OLAP Database - Clickhouse
 - ETL - loads events from event storage to database for analytical purposes (Kafka Table Engine)
+- ELK (Elasticsearch Logstash Kibana) - used for centralized collection, processing, and visualization of logs and metrics in real-time to enable proactive monitoring and analysis of a project.
+- Sentry - used for monitoring and tracking errors in an application, allowing for quick detection, analysis, and resolution of issues to improve the reliability and stability of the project.
+- Jaeger - used for performance testing and load testing web applications, allowing to assess and analyze their ability to handle various loads and conditions, to ensure optimal project performance.
 
 ## How to start app
 
@@ -40,6 +43,16 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 2. Install dependencies - `poetry install`
 3. Run `pytest tests/src/unit`
 
+#### ELK
+1. `make up-elk`
+
+#### Sentry
+1. Turn on **ENABLE_SENTRY** in your .env-file
+2. Set your dsn from sentry.io to **SENTRY_DSN** in your .env-file
+
+#### Jaeger
+1. Turn on **ENABLE_TRACER** in your .env-file
+
 ## Useful commands
 
 ### Production
@@ -53,6 +66,10 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 - Up+build `make up-local`
 - Up+build+detach `make up-local-d`
 - Down + remove volumes `make down-local`
+
+### ELK
+- Up+build+detach `make up-elk`
+- Down `make down-elk`
 
 ## API information
 

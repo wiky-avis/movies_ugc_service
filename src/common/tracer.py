@@ -18,7 +18,7 @@ def request_hook(span: Span, scope) -> None:
     )
     request_id = headers.get("x-request-id")
     if span and span.is_recording():
-        span.set_attribute("http.request_id", request_id)
+        span.set_attribute("http.request_id", request_id)  # type: ignore
 
 
 def configure_tracer(app: FastAPI) -> None:
@@ -31,7 +31,7 @@ def configure_tracer(app: FastAPI) -> None:
             )
         )
     )
-    trace.get_tracer_provider().add_span_processor(
+    trace.get_tracer_provider().add_span_processor(  # type: ignore
         BatchSpanProcessor(
             JaegerExporter(
                 agent_host_name=settings.jaeger_host,
@@ -39,11 +39,11 @@ def configure_tracer(app: FastAPI) -> None:
             )
         )
     )
-    trace.get_tracer_provider().add_span_processor(
+    trace.get_tracer_provider().add_span_processor(  # type: ignore
         BatchSpanProcessor(ConsoleSpanExporter())
     )
     FastAPIInstrumentor().instrument_app(
         app=app,
         excluded_urls="/swagger.json,/swagger,/swaggerui/*",
-        server_request_hook=request_hook,
+        server_request_hook=request_hook,  # type: ignore
     )
