@@ -10,7 +10,7 @@ async def aiohttp_session(get_encoded_token):
     cookies = dict()
     cookies[auth_settings.auth_secure_key] = get_encoded_token
 
-    session = aiohttp.ClientSession(cookies=cookies, headers=fake_request_id)
+    session = aiohttp.ClientSession(cookies=cookies, headers=fake_request_id())
 
     yield session
     await session.close()
