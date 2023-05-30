@@ -11,6 +11,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - /tmp/logs/nginx/:/var/log/nginx/
     depends_on:
       - fastapi
     ports:

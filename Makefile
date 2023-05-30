@@ -30,3 +30,9 @@ up-local-d:
 
 down-local:
 	docker-compose -f docker-compose-local.yml down -v
+
+up-elk:
+	docker-compose -f elk/docker-compose.yml up -d --build
+
+down-elk:
+	docker-compose -f elk/docker-compose.yml down -v
