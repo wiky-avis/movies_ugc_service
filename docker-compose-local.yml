@@ -56,16 +56,26 @@ services:
       - broker
 
   mongo:
-    extends:
-      file: docker-compose-base.yml
-      service: mongo
+    image: mongo:6.0.1
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo:/data/db
+    env_file:
+      - ./.env
     ports:
       - "6000:27017"
 
   mongo-express:
-    extends:
-      file: docker-compose-base.yml
-      service: mongo-express
+    image: mongo-express:0.54.0
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${ME_CONFIG_MONGODB_URL}
     ports:
       - "8081:8081"
 

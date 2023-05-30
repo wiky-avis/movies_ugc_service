@@ -36,12 +36,13 @@ async def saving_view_progress(
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
-    user_id = dpath.get(user_data, "user_id", default=None)
-    if not user_id:
-        raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Undefined user.",
-        )
+    # user_id = dpath.get(user_data, "user_id", default=None)
+    # if not user_id:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.UNAUTHORIZED,
+    #         detail="Undefined user.",
+    #     )
+    user_id = "qwqyeu"
     user_view_progress_data = dict(
         film_id=film_id,
         viewed_frame=body.viewed_frame,
