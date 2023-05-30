@@ -77,18 +77,13 @@ async def delete_film_score(
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
     user_id = dpath.get(user_data, "user_id", default=None)
-    score = dpath.get(user_data, "score", default=None)
-    if not user_id or not score:
+    if not user_id:
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
 
-    score_data = dict(
-        film_id=film_id,
-        user_id=user_id,
-        score=score,
-    )
+    score_data = dict(film_id=film_id, user_id=user_id, score=0)
 
     await user_film_scores_service.delete_score(score_data)
 
@@ -116,17 +111,40 @@ async def get_film_score(
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
     user_id = dpath.get(user_data, "user_id", default=None)
-    score = dpath.get(user_data, "score", default=None)
-    if not user_id or not score:
+    if not user_id:
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
 
-    score_data = dict(
-        film_id=film_id,
-        user_id=user_id,
-        score=score,
+    return await user_film_scores_service.get_user_score(
+        film_id=film_id, user_id=str(user_id)
     )
 
-    return await user_film_scores_service.get_score(score_data)
+
+@router.get(
+    "/top-films/by-score",
+    responses={
+        404: {"model": NotFound},
+        500: {"model": InternalServerError},
+        401: {"model": NotAuthorized},
+    },
+    summary="Получение оценки фильма, которую поставил пользователь",
+    description="Передается числовая оценка по полученному фильму от 1 до 10",
+)
+@inject
+async def get_top_films_by_score(
+    num_films: int,
+    user_film_scores_service: UserFilmScoresService = Depends(
+        Provide[Container.user_film_scores_service]
+    ),
+    user_data=Depends(get_decoded_data),
+) -> list[str]:
+    user_id = dpath.get(user_data, "user_id", default=None)
+    if not user_id:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Undefined user.",
+        )
+
+    return await user_film_scores_service.get_top_scores(limit=num_films)

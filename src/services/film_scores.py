@@ -1,9 +1,11 @@
+# mypy: disable-error-code="attr-defined"
 import logging
 from datetime import datetime
 from http import HTTPStatus
 
 import orjson
 from fastapi import HTTPException
+from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
 from src.api.v1.models.scores import ScoreEventType, UserFilmScore
@@ -21,6 +23,7 @@ class UserFilmScoresService(BaseService):
     def __init__(self, producer: BaseProducer, repository: BaseRepository):
         self._producer = producer
         self._repository = repository
+        self.db_table_name = "film_scores"
 
     async def send(
         self,
@@ -80,10 +83,90 @@ class UserFilmScoresService(BaseService):
         return JSONResponse(content={"result": "Ok."})
 
     async def set_score(self, score_data: dict) -> None:
-        pass
+        user_id = score_data.get("user_id")
+        film_id = score_data.get("film_id")
+        score = score_data.get("score")
+        if not user_id or not film_id or not score:
+            logger.warning(
+                "Error set or update new_film_score: table_name %s user_id %s film_id %s score %s.",
+                self.db_table_name,
+                user_id,
+                film_id,
+                score,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Error sending the event",
+            )
+
+        filter_ = dict(film_id=film_id, user_id=user_id)
+        document = dict(
+            film_id=film_id,
+            user_id=user_id,
+            score=int(score),
+            is_deleted=False,
+        )
+        try:
+            await self._repository.upsert_document(
+                filter_=filter_,
+                document=document,
+                table_name=self.db_table_name,
+            )
+        except ServerSelectionTimeoutError:
+            logger.error(
+                "MongoDb Error. Failed set film score: filter_query %s, document %s, table_name %s",
+                filter_,
+                document,
+                self.db_table_name,
+                exc_info=True,
+            )
 
     async def delete_score(self, score_data: dict) -> None:
-        pass
+        user_id = score_data.get("user_id")
+        film_id = score_data.get("film_id")
+        if not user_id or not film_id:
+            logger.warning(
+                "Error set or update new_film_score: table_name %s user_id %s film_id %s.",
+                self.db_table_name,
+                user_id,
+                film_id,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Error sending the event",
+            )
 
-    async def get_score(self, score_data: dict) -> JSONResponse:
-        return JSONResponse("ok")
+        filter_query = dict(film_id=film_id, user_id=user_id)
+        if await self._repository.find_one(filter_query, self.db_table_name):
+            try:
+                await self._repository.update_one(
+                    filter_=filter_query,
+                    key="is_deleted",
+                    value=True,
+                    table_name=self.db_table_name,
+                )
+            except ServerSelectionTimeoutError:
+                logger.error(
+                    "MongoDb Error. Failed to deleted a user bookmark: filter_query %s, table_name %s",
+                    filter_query,
+                    self.db_table_name,
+                    exc_info=True,
+                )
+
+    async def get_user_score(self, user_id: str, film_id: str) -> JSONResponse:
+        filter_ = dict(user_id=user_id, film_id=film_id, is_deleted=False)
+
+        result = await self._repository.find_one(filter_, self.db_table_name)
+
+        if result:
+            return JSONResponse(content=dict(result))
+        else:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Did not find score for provided user and film",
+            )
+
+    async def get_top_scores(self, limit: int = 10) -> list[str]:
+        return await self._repository.aggregate_top_films_by_score(
+            self.db_table_name, limit
+        )

@@ -66,7 +66,7 @@ from ugc.user_bookmarks_queue;
 
 
 -- Оценки фильмов от пользователей
-create table if not exists ugc.user_film_rating_queue on cluster company_cluster 
+create table if not exists ugc.user_film_score_queue on cluster company_cluster
 ( 
     user_id UUID, 
     film_id UUID, 
@@ -75,7 +75,7 @@ create table if not exists ugc.user_film_rating_queue on cluster company_cluster
 ) engine=Kafka() 
 settings 
     kafka_broker_list = 'broker:9092', 
-    kafka_topic_list = 'film-rating-topic', 
+    kafka_topic_list = 'film-score-topic',
     kafka_group_name = 'clickhouse-group',
     kafka_format = 'JSONEachRow', 
     kafka_num_consumers = 1;
