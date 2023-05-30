@@ -129,8 +129,8 @@ async def get_film_score(
         500: {"model": InternalServerError},
         401: {"model": NotAuthorized},
     },
-    summary="Получение оценки фильма, которую поставил пользователь",
-    description="Передается числовая оценка по полученному фильму от 1 до 10",
+    summary="Получение топа фильмов по пользовательской оценке",
+    description="Возвращает список фильмов со средней оценкой и кол-вом отзывов",
 )
 @inject
 async def get_top_films_by_score(
