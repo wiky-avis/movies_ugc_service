@@ -71,48 +71,7 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 - Up+build+detach `make up-elk`
 - Down `make down-elk`
 
-## API information
-
-**Swagger** - http://localhost/swagger
-
-### Schemas
-
-PlantUML schemas could be found in folder docs.
-They are written in C$ notation up to C3 level.
-More about C4 notation - https://c4model.com
-
-#### Contents
-
-- As-Is - Infrastructure before this project
-- To-Be - Information about this project
-
-## Schemas images
-
-### AS IS
-
-#### C1 as is
-
-![C1 as is](docs/as_is/C1___AS_IS.png "C1 as is")
-
-#### C2 as is
-
-![C2 as is](docs/as_is/C2___AS_IS.png "C2 as is")
-
-### TO BE
-
-#### C1 to be
-
-![C1 to be](docs/to_be/C1___TO_BE.png "C1 to be")
-
-#### C2 to be
-
-![C2 to be](docs/to_be/C2___TO_BE.png "C2 to be")
-
-#### C3 to be
-
-![C3 to be](docs/to_be/C3___TO_BE.png "C3 to be")
-
-### Configure a MongoDB Cluster
+### MongoDB Cluster
 - Start all of the containers
 ```bash
 docker-compose -f docker-compose-mongo-cluster.yml up -d
@@ -165,3 +124,44 @@ docker-compose -f docker-compose-mongo-cluster.yml rm
 ```bash
 docker-compose -f docker-compose-mongo-cluster.yml down -v --rmi all --remove-orphans
 ```
+
+## API information
+
+**Swagger** - http://localhost/swagger
+
+### Schemas
+
+PlantUML schemas could be found in folder docs.
+They are written in C$ notation up to C3 level.
+More about C4 notation - https://c4model.com
+
+#### Contents
+
+- As-Is - Infrastructure before this project
+- To-Be - Information about this project
+
+## Schemas images
+
+### AS IS
+
+#### C1 as is
+
+![C1 as is](docs/as_is/C1___AS_IS.png "C1 as is")
+
+#### C2 as is
+
+![C2 as is](docs/as_is/C2___AS_IS.png "C2 as is")
+
+### TO BE
+
+#### C1 to be
+
+![C1 to be](docs/to_be/C1___TO_BE.png "C1 to be")
+
+#### C2 to be
+
+![C2 to be](docs/to_be/C2___TO_BE.png "C2 to be")
+
+#### C3 to be
+
+![C3 to be](docs/to_be/C3___TO_BE.png "C3 to be")
