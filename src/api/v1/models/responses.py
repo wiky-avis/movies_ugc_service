@@ -11,3 +11,7 @@ class NotFound(AdditionalResponseModel):
 
 class InternalServerError(AdditionalResponseModel):
     pass
+
+
+class NotAuthorized(AdditionalResponseModel):
+    pass
