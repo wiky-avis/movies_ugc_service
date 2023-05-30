@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt
 
 
 class ScoreEventType(str, Enum):
@@ -14,3 +14,11 @@ class UserFilmScore(BaseModel):
     score: int
     event_type: ScoreEventType = ScoreEventType.SET
     ts: str
+
+
+class SetFilmScoreInput(BaseModel):
+    score: StrictInt
+
+
+class GetTopFilmsScoreInput(BaseModel):
+    limit: StrictInt

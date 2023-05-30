@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import dpath
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.api.v1.models.responses import (
@@ -10,7 +10,11 @@ from src.api.v1.models.responses import (
     NotAuthorized,
     NotFound,
 )
-from src.api.v1.models.scores import ScoreEventType
+from src.api.v1.models.scores import (
+    GetTopFilmsScoreInput,
+    ScoreEventType,
+    SetFilmScoreInput,
+)
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
 from src.services.film_scores import UserFilmScoresService
@@ -32,14 +36,14 @@ router = APIRouter()
 @inject
 async def set_film_score(
     film_id: str,
+    body: SetFilmScoreInput = Body(...),
     user_film_scores_service: UserFilmScoresService = Depends(
         Provide[Container.user_film_scores_service]
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
     user_id = dpath.get(user_data, "user_id", default=None)
-    score = dpath.get(user_data, "score", default=None)
-    if not user_id or not score:
+    if not user_id:
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
@@ -48,7 +52,7 @@ async def set_film_score(
     score_data = dict(
         film_id=film_id,
         user_id=user_id,
-        score=score,
+        score=body.score,
     )
 
     await user_film_scores_service.set_score(score_data)
@@ -134,7 +138,7 @@ async def get_film_score(
 )
 @inject
 async def get_top_films_by_score(
-    num_films: int,
+    body: GetTopFilmsScoreInput = Body(...),
     user_film_scores_service: UserFilmScoresService = Depends(
         Provide[Container.user_film_scores_service]
     ),
@@ -147,4 +151,4 @@ async def get_top_films_by_score(
             detail="Undefined user.",
         )
 
-    return await user_film_scores_service.get_top_scores(limit=num_films)
+    return await user_film_scores_service.get_top_scores(limit=body.limit)
