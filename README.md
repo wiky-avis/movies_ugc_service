@@ -71,6 +71,60 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 - Up+build+detach `make up-elk`
 - Down `make down-elk`
 
+### MongoDB Cluster
+- Start all of the containers
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml up -d
+```
+- Initialize the replica sets (config servers and shards)
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml exec configsvr01 sh -c "mongosh < /scripts/init-configserver.js"
+
+docker-compose -f docker-compose-mongo-cluster.yml exec shard01-a sh -c "mongosh < /scripts/init-shard01.js"
+docker-compose -f docker-compose-mongo-cluster.yml exec shard02-a sh -c "mongosh < /scripts/init-shard02.js"
+docker-compose -f docker-compose-mongo-cluster.yml exec shard03-a sh -c "mongosh < /scripts/init-shard03.js"
+```
+- Initializing the router
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml exec router01 sh -c "mongosh < /scripts/init-router.js"
+```
+- Enable sharding and setup sharding-key
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml exec router01 mongosh --port 27017
+
+// Enable sharding for database `MyDatabase`
+sh.enableSharding("MyDatabase")
+
+// Setup shardingKey for collection `MyCollection`**
+db.adminCommand( { shardCollection: "MyDatabase.MyCollection", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
+```
+- Check database status
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml exec router01 mongosh --port 27017
+use MyDatabase
+db.stats()
+db.MyCollection.getShardDistribution()
+```
+- Verify the status of the sharded cluster 
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml exec router01 mongosh --port 27017
+sh.status()
+```
+- Verify status of replica set for each shard
+```bash
+docker -f docker-compose-mongo-cluster.yml exec -it shard-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+docker -f docker-compose-mongo-cluster.yml exec -it shard-02-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+docker -f docker-compose-mongo-cluster.yml exec -it shard-03-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+```
+- Resetting the Cluster
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml rm
+```
+- Clean up docker-compose
+```bash
+docker-compose -f docker-compose-mongo-cluster.yml down -v --rmi all --remove-orphans
+```
+
 ## API information
 
 **Swagger** - http://localhost/swagger

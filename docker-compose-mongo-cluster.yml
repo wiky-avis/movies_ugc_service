@@ -1,0 +1,285 @@
+version: '3'
+services:
+
+## Router
+  router01:
+    image: mongo:6.0.1
+    container_name: router-01
+    command: mongos --port ${MONGO_PORT} --configdb rs-config-server/configsvr01:${MONGO_PORT},configsvr02:${MONGO_PORT},configsvr03:${MONGO_PORT} --bind_ip_all
+    ports:
+      - "${ROUTER01_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_router01_db:/data/db
+      - mongodb_cluster_router01_config:/data/configdb
+    env_file:
+      - ./.env
+  router02:
+    image: mongo:6.0.1
+    container_name: router-02
+    command: mongos --port ${MONGO_PORT} --configdb rs-config-server/configsvr01:${MONGO_PORT},configsvr02:${MONGO_PORT},configsvr03:${MONGO_PORT} --bind_ip_all
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_router02_db:/data/db
+      - mongodb_cluster_router02_config:/data/configdb
+    ports:
+      - "${ROUTER02_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - router01
+    env_file:
+      - ./.env
+
+## Config Servers
+  configsvr01:
+    image: mongo:6.0.1
+    container_name: mongo-config-01
+    command: mongod --port ${MONGO_PORT} --configsvr --replSet rs-config-server
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_configsvr01_db:/data/db
+      - mongodb_cluster_configsvr01_config:/data/configdb
+    ports:
+      - "${CONFIGSVR01_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - shard01-a
+      - shard02-a
+      - shard03-a
+    env_file:
+      - ./.env
+  configsvr02:
+    image: mongo:6.0.1
+    container_name: mongo-config-02
+    command: mongod --port ${MONGO_PORT} --configsvr --replSet rs-config-server
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_configsvr02_db:/data/db
+      - mongodb_cluster_configsvr02_config:/data/configdb
+    ports:
+      - "${CONFIGSVR02_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - configsvr01
+    env_file:
+      - ./.env
+  configsvr03:
+    image: mongo:6.0.1
+    container_name: mongo-config-03
+    command: mongod --port ${MONGO_PORT} --configsvr --replSet rs-config-server
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_configsvr03_db:/data/db
+      - mongodb_cluster_configsvr03_config:/data/configdb
+    ports:
+      - "${CONFIGSVR03_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - configsvr02
+    env_file:
+      - ./.env
+
+## Shards
+  ## Shards 01
+  shard01-a:
+    image: mongo:6.0.1
+    container_name: shard-01-node-a
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-01
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard01_a_db:/data/db
+      - mongodb_cluster_shard01_a_config:/data/configdb
+    ports:
+      - "${SHARD01A_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - shard01-b
+      - shard01-c
+    env_file:
+      - ./.env
+  shard01-b:
+    image: mongo:6.0.1
+    container_name: shard-01-node-b
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-01
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard01_b_db:/data/db
+      - mongodb_cluster_shard01_b_config:/data/configdb
+    ports:
+      - "${SHARD01B_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    env_file:
+      - ./.env
+  shard01-c:
+    image: mongo:6.0.1
+    container_name: shard-01-node-c
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-01
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard01_c_db:/data/db
+      - mongodb_cluster_shard01_c_config:/data/configdb
+    ports:
+      - "${SHARD01C_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    env_file:
+      - ./.env
+
+  ## Shards 02
+  shard02-a:
+    image: mongo:6.0.1
+    container_name: shard-02-node-a
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-02
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard02_a_db:/data/db
+      - mongodb_cluster_shard02_a_config:/data/configdb
+    ports:
+      - "${SHARD02A_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - shard02-b
+      - shard02-c
+    env_file:
+      - ./.env
+  shard02-b:
+    image: mongo:6.0.1
+    container_name: shard-02-node-b
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-02
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard02_b_db:/data/db
+      - mongodb_cluster_shard02_b_config:/data/configdb
+    ports:
+      - "${SHARD02B_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    env_file:
+      - ./.env
+  shard02-c:
+    image: mongo:6.0.1
+    container_name: shard-02-node-c
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-02
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard02_c_db:/data/db
+      - mongodb_cluster_shard02_c_config:/data/configdb
+    ports:
+      - "${SHARD02C_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    env_file:
+      - ./.env
+
+  ## Shards 03
+  shard03-a:
+    image: mongo:6.0.1
+    container_name: shard-03-node-a
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-03
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard03_a_db:/data/db
+      - mongodb_cluster_shard03_a_config:/data/configdb
+    ports:
+      - "${SHARD03A_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    links:
+      - shard03-b
+      - shard03-c
+    env_file:
+      - ./.env
+  shard03-b:
+    image: mongo:6.0.1
+    container_name: shard-03-node-b
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-03
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard03_b_db:/data/db
+      - mongodb_cluster_shard03_b_config:/data/configdb
+    ports:
+      - "${SHARD03B_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    env_file:
+      - ./.env
+  shard03-c:
+    image: mongo:6.0.1
+    container_name: shard-03-node-c
+    command: mongod --port ${MONGO_PORT} --shardsvr --replSet rs-shard-03
+    volumes:
+      - ./scripts:/scripts
+      - mongodb_cluster_shard03_c_db:/data/db
+      - mongodb_cluster_shard03_c_config:/data/configdb
+    ports:
+      - "${SHARD03C_PORT}:${MONGO_PORT}"
+    expose:
+      - "${MONGO_PORT}"
+    restart: always
+    env_file:
+      - ./.env
+
+volumes:
+  mongodb_cluster_router01_db:
+  mongodb_cluster_router01_config:
+
+  mongodb_cluster_router02_db:
+  mongodb_cluster_router02_config:
+
+  mongodb_cluster_configsvr01_db:
+  mongodb_cluster_configsvr01_config:
+
+  mongodb_cluster_configsvr02_db:
+  mongodb_cluster_configsvr02_config:
+
+  mongodb_cluster_configsvr03_db:
+  mongodb_cluster_configsvr03_config:
+
+  mongodb_cluster_shard01_a_db:
+  mongodb_cluster_shard01_a_config:
+
+  mongodb_cluster_shard01_b_db:
+  mongodb_cluster_shard01_b_config:
+
+  mongodb_cluster_shard01_c_db:
+  mongodb_cluster_shard01_c_config:
+
+  mongodb_cluster_shard02_a_db:
+  mongodb_cluster_shard02_a_config:
+
+  mongodb_cluster_shard02_b_db:
+  mongodb_cluster_shard02_b_config:
+
+  mongodb_cluster_shard02_c_db:
+  mongodb_cluster_shard02_c_config:
+
+  mongodb_cluster_shard03_a_db:
+  mongodb_cluster_shard03_a_config:
+
+  mongodb_cluster_shard03_b_db:
+  mongodb_cluster_shard03_b_config:
+
+  mongodb_cluster_shard03_c_db:
+  mongodb_cluster_shard03_c_config:
