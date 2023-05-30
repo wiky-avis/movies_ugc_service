@@ -5,7 +5,12 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.api.v1.models.responses import InternalServerError, NotFound, NotAuthorized
+from src.api.v1.models.responses import (
+    InternalServerError,
+    NotAuthorized,
+    NotFound,
+)
+from src.api.v1.models.scores import ScoreEventType
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
 from src.services.film_scores import UserFilmScoresService
@@ -21,8 +26,8 @@ router = APIRouter()
         500: {"model": InternalServerError},
         401: {"model": NotAuthorized},
     },
-    summary="",
-    description="",
+    summary="Поставить числовую оценку фильму",
+    description="От пользователя приходит оценка от 1 до 10",
 )
 @inject
 async def set_film_score(
@@ -48,7 +53,9 @@ async def set_film_score(
 
     await user_film_scores_service.set_score(score_data)
 
-    return await user_film_scores_service.send_event(score_data, "set")
+    return await user_film_scores_service.send_event(
+        score_data, ScoreEventType.SET
+    )
 
 
 @router.delete(
@@ -58,8 +65,8 @@ async def set_film_score(
         500: {"model": InternalServerError},
         401: {"model": NotAuthorized},
     },
-    summary="",
-    description="",
+    summary="Удалить поставленную оценку фильму",
+    description="Пользователь передает фильм, с которого нужно снять оценку",
 )
 @inject
 async def delete_film_score(
@@ -85,7 +92,9 @@ async def delete_film_score(
 
     await user_film_scores_service.delete_score(score_data)
 
-    return await user_film_scores_service.send_event(score_data, "delete")
+    return await user_film_scores_service.send_event(
+        score_data, ScoreEventType.DELETE
+    )
 
 
 @router.get(
@@ -95,8 +104,8 @@ async def delete_film_score(
         500: {"model": InternalServerError},
         401: {"model": NotAuthorized},
     },
-    summary="",
-    description="",
+    summary="Получение оценки фильма, которую поставил пользователь",
+    description="Передается числовая оценка по полученному фильму от 1 до 10",
 )
 @inject
 async def get_film_score(

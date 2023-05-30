@@ -22,7 +22,7 @@ class FakeUserActivityRepository:
 
 
 class FakeProducer:
-    async def send(self, key, value):
+    async def send(self, key, value, topic):
         pass
 
 
