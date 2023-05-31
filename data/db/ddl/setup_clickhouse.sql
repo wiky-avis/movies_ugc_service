@@ -70,7 +70,8 @@ create table if not exists ugc.user_film_score_queue on cluster company_cluster
 ( 
     user_id UUID, 
     film_id UUID, 
-    rating Int8, --1 to 10
+    score Int8, --1 to 10
+    event_type FixedString(10), -- set, delete
     ts DateTime
 ) engine=Kafka() 
 settings 
@@ -81,19 +82,20 @@ settings
     kafka_num_consumers = 1;
 
 
-create table if not exists ugc.user_film_rating on cluster company_cluster 
+create table if not exists ugc.user_film_score on cluster company_cluster
 (
     user_id UUID, 
     film_id UUID, 
-    rating Int8, --1 to 10
+    score Int8, --1 to 10
+    event_type FixedString(10), -- set, delete
     ts DateTime
 ) engine=MergeTree 
 partition by toYYYYMMDD(ts) 
 order by ts desc;
 
-create materialized view if not exists ugc.user_film_rating_mv to ugc.user_film_rating as 
+create materialized view if not exists ugc.user_film_score_mv to ugc.user_film_score as
 select * 
-from ugc.user_film_rating_queue;
+from ugc.user_film_score_queue;
 
 
 -- Отзывы/обзоры фильмов от пользователей
