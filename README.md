@@ -30,7 +30,8 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 
 #### Boot everything in development mode (open ports and separate volumes)
 
-1. `make up-local`
+1. `cp .env_local .env`
+2. `make up-local`
 
 #### E2E tests
 
@@ -41,7 +42,8 @@ The difference is that dev has open ports and separate volumes. Tests boot on de
 
 1. Up python virtual env - venv
 2. Install dependencies - `poetry install`
-3. Run `pytest tests/src/unit`
+3. Create .env file `cp .env_test .env`
+4. Run `pytest tests/src/unit`
 
 #### ELK
 1. `make up-elk`
