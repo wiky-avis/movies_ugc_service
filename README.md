@@ -85,19 +85,22 @@ docker-compose -f docker-compose-mongo-cluster.yml exec configsvr01 sh -c "mongo
 docker-compose -f docker-compose-mongo-cluster.yml exec shard01-a sh -c "mongosh < /scripts/init-shard01.js"
 docker-compose -f docker-compose-mongo-cluster.yml exec shard02-a sh -c "mongosh < /scripts/init-shard02.js"
 docker-compose -f docker-compose-mongo-cluster.yml exec shard03-a sh -c "mongosh < /scripts/init-shard03.js"
-```
-- Initializing the router
-```bash
+
+// Initializing the router
 docker-compose -f docker-compose-mongo-cluster.yml exec router01 sh -c "mongosh < /scripts/init-router.js"
+
+// Enable sharding and setup sharding-key
+docker-compose -f docker-compose-mongo-cluster.yml exec router01 sh -c "mongosh < /scripts/enable-sharding.js"
 ```
-- Enable sharding and setup sharding-key
+
+- Enable new sharding and setup new sharding-key
 ```bash
 docker-compose -f docker-compose-mongo-cluster.yml exec router01 mongosh --port 27017
 
 // Enable sharding for database `MyDatabase`
 sh.enableSharding("MyDatabase")
 
-// Setup shardingKey for collection `MyCollection`**
+// Setup shardingKey for collection `MyCollection`
 db.adminCommand( { shardCollection: "MyDatabase.MyCollection", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
 ```
 - Check database status
