@@ -8,9 +8,9 @@ from fastapi import HTTPException
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
-from src.api.v1.models.bookmarks import UserBookmark
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
+from src.brokers.models import UserBookmarkEventModel
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
 
@@ -42,7 +42,7 @@ class UserBookmarksService(BaseService):
                 detail="Error sending the event",
             )
 
-        view_progress = UserBookmark(
+        view_progress = UserBookmarkEventModel(
             user_id=user_id,  # type: ignore[arg-type]
             film_id=film_id,  # type: ignore[arg-type]
             event_type=event_type,  # type: ignore[arg-type]

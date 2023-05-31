@@ -1,13 +1,16 @@
 from pydantic import BaseModel
 
 
-class FilmReview(BaseModel):
+class Review(BaseModel):
     user_id: str
     film_id: str
-    review_text: str
-    ts: str
+    review_id: str
+    review_title: str
+    review_body: str
 
 
 class ReviewList(BaseModel):
+    review_id: str
     user_id: str
-    review_text: str
+    review_title: str
+    review_body: str
