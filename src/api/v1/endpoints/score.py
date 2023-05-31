@@ -143,7 +143,7 @@ async def get_top_films_by_score(
         Provide[Container.user_film_scores_service]
     ),
     user_data=Depends(get_decoded_data),
-) -> list[str]:
+) -> list[dict]:
     user_id = dpath.get(user_data, "user_id", default=None)
     if not user_id:
         raise HTTPException(

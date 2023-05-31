@@ -4,6 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 
 import orjson
+from bson import json_util
 from fastapi import HTTPException
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
@@ -39,9 +40,11 @@ class UserFilmScoresService(BaseService):
         user_id = score_data.get("user_id")
         film_id = score_data.get("film_id")
         score = score_data.get("score")
-        if not user_id or not film_id or not score:
+        if (
+            not user_id or not film_id or score is None
+        ):  # Проверка скора отличается, чтобы не тригериться на ноль
             logger.warning(
-                "Error send new_bookmark: user_id %s film_id %s score %s event_type %s.",
+                "Error send new_film_score - missing parameters: user_id %s film_id %s score %s event_type %s.",
                 user_id,
                 film_id,
                 score,
@@ -68,7 +71,7 @@ class UserFilmScoresService(BaseService):
             )
         except ProducerError:
             logger.warning(
-                "Error send new_bookmark: user_id %s film_id %s score %s event_type %s.",
+                "Error send new_film_score - ProducerError: user_id %s film_id %s score %s event_type %s.",
                 user_id,
                 film_id,
                 score,
@@ -147,7 +150,7 @@ class UserFilmScoresService(BaseService):
                 )
             except ServerSelectionTimeoutError:
                 logger.error(
-                    "MongoDb Error. Failed to deleted a user bookmark: filter_query %s, table_name %s",
+                    "MongoDb Error. Failed to deleted a user film score: filter_query %s, table_name %s",
                     filter_query,
                     self.db_table_name,
                     exc_info=True,
@@ -159,14 +162,14 @@ class UserFilmScoresService(BaseService):
         result = await self._repository.find_one(filter_, self.db_table_name)
 
         if result:
-            return JSONResponse(content=dict(result))
+            return JSONResponse(content=json_util.dumps(result))
         else:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
                 detail="Did not find score for provided user and film",
             )
 
-    async def get_top_scores(self, limit: int = 10) -> list[str]:
+    async def get_top_scores(self, limit: int = 10) -> list[dict]:
         return await self._repository.aggregate_top_films_by_score(
             self.db_table_name, limit
         )

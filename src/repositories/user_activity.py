@@ -1,9 +1,13 @@
+import logging
 from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from src.repositories.base import BaseRepository
 from src.settings.db import db_settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserActivityRepository(BaseRepository):
@@ -38,7 +42,7 @@ class UserActivityRepository(BaseRepository):
         collection = self._db[table_name]
         await collection.update_one(filter_, {"$set": document}, upsert=upsert)
 
-    async def find_one(self, filter_: dict, table_name: str):
+    async def find_one(self, filter_: dict, table_name: str) -> dict:
         collection = self._db[table_name]
         return await collection.find_one(filter_)
 
@@ -46,13 +50,15 @@ class UserActivityRepository(BaseRepository):
         collection = self._db[table_name]
         return collection.find(filter_, columns)
 
-    def aggregate_top_films_by_score(self, table_name: str, limit: int = 10):
+    async def aggregate_top_films_by_score(
+        self, table_name: str, limit: int = 10
+    ) -> list[dict]:
         collection = self._db[table_name]
 
-        avg_value_agg = collection.aggregate(
+        avg_value_agg_cursor = collection.aggregate(
             [
                 {"$match": {"is_deleted": False}},
-                {"$group": {"_id": None, "num_scores": {"$sum": 1}}},
+                {"$group": {"_id": "$film_id", "num_scores": {"$sum": 1}}},
                 {
                     "$group": {
                         "_id": None,
@@ -62,14 +68,15 @@ class UserActivityRepository(BaseRepository):
             ]
         )
 
+        avg_value_agg = [doc async for doc in avg_value_agg_cursor]
         avg_num_scores = avg_value_agg[0].get("avg_num_scores", 0)
 
-        return collection.aggregate(
+        aggregation_cursor = collection.aggregate(
             [
                 {"$match": {"is_deleted": False}},
                 {
                     "$group": {
-                        "film_id": "$film_id",
+                        "_id": "$film_id",
                         "avg_score": {"$avg": "$score"},
                         "num_scores": {"$sum": 1},
                     }
@@ -79,6 +86,15 @@ class UserActivityRepository(BaseRepository):
                 {"$limit": limit},
             ]
         )
+
+        result = []
+
+        async for doc in aggregation_cursor:
+            doc["film_id"] = doc.pop("_id")
+            doc["avg_score"] = int(doc["avg_score"])
+            result.append(doc)
+
+        return result
 
     def get_films_watching_now(self, table_name: str):
         collection = self._db[table_name]
