@@ -44,7 +44,3 @@ class UserActivityRepository(BaseRepository):
                 {"$sort": {"count": -1}},
             ]
         )
-
-    def get_film_reviews(self, table_name: str, film_id: str):
-        collection = self._db[table_name]
-        return collection.find({"film_id": film_id}).sort("_id", -1)
