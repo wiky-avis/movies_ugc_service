@@ -17,7 +17,7 @@ from src.brokers.exceptions import ProducerError
 from src.brokers.models import UserViewProgressEventModel
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
-from src.settings.kafka import kafka_producer_settings
+from src.settings.kafka import kafka_topic_names
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class UserViewHistoryService(BaseService):
         self,
         key: bytes,
         value: bytes,
-        topic: str = kafka_producer_settings.view_progress_topic,
+        topic: str = kafka_topic_names.view_progress_topic,
     ) -> None:
         await self._producer.send(key=key, value=value, topic=topic)
 

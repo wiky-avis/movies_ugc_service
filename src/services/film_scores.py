@@ -19,7 +19,7 @@ from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
-from src.settings.kafka import kafka_producer_settings
+from src.settings.kafka import kafka_topic_names
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class UserFilmScoresService(BaseService):
         self,
         key: bytes,
         value: bytes,
-        topic: str = kafka_producer_settings.film_score_topic,
+        topic: str = kafka_topic_names.film_score_topic,
     ) -> None:
         await self._producer.send(key=key, value=value, topic=topic)
 

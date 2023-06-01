@@ -13,7 +13,7 @@ from src.brokers.exceptions import ProducerError
 from src.brokers.models import UserBookmarkEventModel
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
-from src.settings.kafka import kafka_producer_settings
+from src.settings.kafka import kafka_topic_names
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class UserBookmarksService(BaseService):
         self,
         key: bytes,
         value: bytes,
-        topic: str = kafka_producer_settings.bookmarks_topic,
+        topic: str = kafka_topic_names.bookmarks_topic,
     ) -> None:
         await self._producer.send(key=key, value=value, topic=topic)
 
