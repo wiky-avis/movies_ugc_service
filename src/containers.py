@@ -3,7 +3,7 @@ from dependency_injector import containers, providers
 from src.brokers import kafka_producer
 from src.common import db
 from src.repositories import user_activity
-from src.services import user_bookmarks, user_view_history
+from src.services import user_bookmarks, user_film_reviews, user_view_history
 
 
 class Container(containers.DeclarativeContainer):
@@ -11,6 +11,7 @@ class Container(containers.DeclarativeContainer):
         modules=[
             "src.api.v1.endpoints.view_progress",
             "src.api.v1.endpoints.bookmarks",
+            "src.api.v1.endpoints.film_reviews",
         ]
     )
 
@@ -29,6 +30,12 @@ class Container(containers.DeclarativeContainer):
 
     user_bookmarks_service = providers.Factory(
         user_bookmarks.UserBookmarksService,
+        producer=kafka_producer,
+        repository=user_activity_repository,
+    )
+
+    user_film_reviews_service = providers.Factory(
+        user_film_reviews.UserFilmReviewsService,
         producer=kafka_producer,
         repository=user_activity_repository,
     )
