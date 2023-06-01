@@ -3,13 +3,12 @@ from http import HTTPStatus
 
 import dpath
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_pagination import Page
 
-from src.api.v1.models.film_reviews import ReviewList
+from src.api.v1.models.film_reviews import AddFilmReviewInput, ReviewList
 from src.api.v1.models.responses import InternalServerError, NotFound
-from src.api.v1.schemas.film_reviews import AddFilmReviewSchema
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
 from src.services.user_film_reviews import UserFilmReviewsService
@@ -43,7 +42,7 @@ async def get_film_reviews(
 @inject
 async def add_film_review(
     film_id: str,
-    review: AddFilmReviewSchema,
+    review: AddFilmReviewInput = Body(...),
     user_film_reviews_service: UserFilmReviewsService = Depends(
         Provide[Container.user_film_reviews_service]
     ),
@@ -57,18 +56,13 @@ async def add_film_review(
         )
 
     user_film_review = dict(
-        user_id=str(uuid.uuid4()),
+        user_id=user_id,
         film_id=film_id,
         review_id=str(uuid.uuid4()),
-    )
-
-    body = dict(
         review_title=review.title,
         review_body=review.body,
     )
 
-    await user_film_reviews_service.create_film_review(user_film_review, body)
+    await user_film_reviews_service.create_film_review(user_film_review)
 
-    return await user_film_reviews_service.send_film_review(
-        user_film_review, body
-    )
+    return await user_film_reviews_service.send_film_review(user_film_review)
