@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from http import HTTPStatus
 
 import dpath
@@ -21,7 +22,7 @@ router = APIRouter()
     "/reviews/{film_id}",
     responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
     summary="Получить список рецензий к фильму.",
-    description="Получить список рецензий к фильму, отсортированный в порядке создания.",
+    description="Получить список рецензий к фильму, отсортированный по дате создания.",
 )
 @inject
 async def get_film_reviews(
@@ -61,6 +62,7 @@ async def add_film_review(
         review_id=str(uuid.uuid4()),
         review_title=review.title,
         review_body=review.body,
+        created_dt=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
     )
 
     await user_film_reviews_service.create_film_review(user_film_review)

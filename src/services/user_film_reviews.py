@@ -1,13 +1,11 @@
 # mypy: disable-error-code="attr-defined"
 import logging
-from datetime import datetime
 from http import HTTPStatus
 
 import dpath
 import orjson
 from fastapi import HTTPException
 from fastapi_pagination import paginate
-from pymongo import ASCENDING
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
@@ -36,6 +34,7 @@ class UserFilmReviewsService(BaseService):
         review_id = dpath.get(data, "review_id", default=None)
         review_title = dpath.get(data, "review_title", default=None)
         review_body = dpath.get(data, "review_body", default=None)
+        created_dt = dpath.get(data, "created_dt", default=None)
         if not user_id or not film_id or not review_title or not review_body:
             logger.warning(
                 "Error send new_film_review: user_id %s film_id %s.",
@@ -53,7 +52,7 @@ class UserFilmReviewsService(BaseService):
             review_id=review_id,  # type: ignore[arg-type]
             review_title=review_title,  # type: ignore[arg-type]
             review_body=review_body,  # type: ignore[arg-type]
-            ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            ts=created_dt,  # type: ignore[arg-type]
         )
 
         try:
@@ -84,12 +83,13 @@ class UserFilmReviewsService(BaseService):
                 user_id=doc["user_id"],
                 review_title=doc["review_title"],
                 review_body=doc["review_body"],
+                created_dt=doc["created_dt"],
             )
             async for doc in self._repository.find(
                 filter_=dict(film_id=film_id),
                 columns={},
                 table_name=table_name,
-            ).sort("_id", ASCENDING)
+            ).sort("created_dt", -1)
         ]
         return paginate(sequence=result)
 
@@ -100,6 +100,7 @@ class UserFilmReviewsService(BaseService):
         review_id = dpath.get(data, "review_id", default=None)
         review_title = dpath.get(data, "review_title", default=None)
         review_body = dpath.get(data, "review_body", default=None)
+        created_dt = dpath.get(data, "created_dt", default=None)
         if not user_id or not film_id or not review_title or not review_body:
             logger.warning(
                 "Error insert user's film review: table_name %s user_id %s film_id %s.",
@@ -126,6 +127,7 @@ class UserFilmReviewsService(BaseService):
             review_id=review_id,
             review_title=review_title,
             review_body=review_body,
+            created_dt=created_dt,
         )
         try:
             await self._repository.insert_one(

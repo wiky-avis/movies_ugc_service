@@ -11,3 +11,4 @@ class ReviewList(BaseModel):
     user_id: str
     review_title: str
     review_body: str
+    created_dt: str
