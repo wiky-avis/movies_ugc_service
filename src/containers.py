@@ -11,8 +11,8 @@ class Container(containers.DeclarativeContainer):
         modules=[
             "src.api.v1.endpoints.view_progress",
             "src.api.v1.endpoints.bookmarks",
+            "src.api.v1.endpoints.film_scores",
             "src.api.v1.endpoints.film_reviews",
-            "src.api.v1.endpoints.score",
         ]
     )
 

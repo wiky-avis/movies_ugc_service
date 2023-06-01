@@ -99,8 +99,7 @@ class UserViewHistoryService(BaseService):
         try:
             await self._repository.upsert(
                 filter_=filter_query,
-                key="viewed_frame",
-                value=viewed_frame,
+                document={"viewed_frame": viewed_frame},
                 table_name=table_name,
             )
         except ServerSelectionTimeoutError:

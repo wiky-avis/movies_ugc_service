@@ -8,7 +8,7 @@ import pytest
 async def test_film_score_post_request(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_id = "dc3825a9-8668-400e-b083-97aa24081352"
-    host = f"http://127.0.0.1:8000/api/v1/score-film/{film_id}"
+    host = f"http://127.0.0.1:8000/api/v1/film_scores/{film_id}"
     body = {"score": 9}
     async with aiohttp_session.post(host, json=body) as resp:
         assert resp.status == HTTPStatus.OK
@@ -18,7 +18,7 @@ async def test_film_score_post_request(aiohttp_session, user_settings):
 async def test_film_score_get_request(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_id = "b18d7b24-f2db-4f2a-b584-55da3cad8b26"
-    host = f"http://127.0.0.1:8000/api/v1/score-film/{film_id}"
+    host = f"http://127.0.0.1:8000/api/v1/film_scores/{film_id}"
     user_id = user_settings["user_id"]
     body = {"score": 9}
     async with aiohttp_session.post(host, json=body) as resp:
@@ -41,7 +41,7 @@ async def test_film_score_get_request(aiohttp_session, user_settings):
 async def test_film_score_delete_request(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_id = "39e7114a-f61e-461d-b2b4-9c5037b5051b"
-    host = f"http://127.0.0.1:8000/api/v1/score-film/{film_id}"
+    host = f"http://127.0.0.1:8000/api/v1/film_scores/{film_id}"
     body = {"score": 9}
     async with aiohttp_session.post(host, json=body) as resp:
         assert resp.status == HTTPStatus.OK
@@ -64,7 +64,7 @@ async def test_film_score_top_films(aiohttp_session, user_settings):
         "b07f6584-db4c-4f3f-b343-b635d52b1d40",
     ]
     api_host = "http://127.0.0.1:8000"
-    post_score_path = "/api/v1/score-film/"
+    post_score_path = "/api/v1/film_scores/"
     post_body = {"score": 10}
 
     # Записываем фильмы с самой большой оценкой
@@ -73,7 +73,7 @@ async def test_film_score_top_films(aiohttp_session, user_settings):
         async with aiohttp_session.post(host, json=post_body) as resp:
             assert resp.status == HTTPStatus.OK
 
-    top_score_path = "/api/v1/top-films/by-score"
+    top_score_path = "/api/v1/film_scores/top"
     top_body = {"limit": 30}
 
     # Запрашиваем топ фильмов

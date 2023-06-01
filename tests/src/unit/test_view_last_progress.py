@@ -13,16 +13,16 @@ async def test_last_view_progress(frame_data):
     repository = FakeUARepository()
 
     # Добавляем фейковые данные
-    film_id = frame_data["film_id"]
-    user_id = frame_data["user_id"]
+    film_id = frame_data.pop("film_id")
+    user_id = frame_data.pop("user_id")
     viewed_frame = frame_data["viewed_frame"]
-    repository.storage[f"{film_id}:{user_id}"] = viewed_frame
+    document_data = dict()
+    document_data[f"{film_id}:{user_id}"] = frame_data
+    repository.storage["view_progress"] = document_data
 
     service = UserViewHistoryService(producer, repository)
 
-    filter_ = dict(
-        film_id=frame_data["film_id"], user_id=frame_data["user_id"]
-    )
+    filter_ = dict(film_id=film_id, user_id=user_id)
 
     result = await service.get_last_view_progress(filter_)
 

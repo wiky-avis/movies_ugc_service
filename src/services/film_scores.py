@@ -6,10 +6,15 @@ from http import HTTPStatus
 import orjson
 from bson import json_util
 from fastapi import HTTPException
+from fastapi_pagination import Page, paginate
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
-from src.api.v1.models.scores import ScoreEventType, UserFilmScore
+from src.api.v1.models.film_scores import (
+    FilmAvgScore,
+    ScoreEventType,
+    UserFilmScore,
+)
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
 from src.repositories.base import BaseRepository
@@ -110,7 +115,7 @@ class UserFilmScoresService(BaseService):
             is_deleted=False,
         )
         try:
-            await self._repository.upsert_document(
+            await self._repository.upsert(
                 filter_=filter_,
                 document=document,
                 table_name=self.db_table_name,
@@ -155,21 +160,32 @@ class UserFilmScoresService(BaseService):
                     self.db_table_name,
                     exc_info=True,
                 )
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail="Internal Server error",
+                )
+        else:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Score for provided film and user wes not found",
+            )
 
     async def get_user_score(self, user_id: str, film_id: str) -> JSONResponse:
         filter_ = dict(user_id=user_id, film_id=film_id, is_deleted=False)
 
         result = await self._repository.find_one(filter_, self.db_table_name)
 
-        if result:
-            return JSONResponse(content=json_util.dumps(result))
-        else:
+        if not result:
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
                 detail="Did not find score for provided user and film",
             )
 
-    async def get_top_scores(self, limit: int = 10) -> list[dict]:
-        return await self._repository.aggregate_top_films_by_score(
+        return JSONResponse(content=json_util.dumps(result))
+
+    async def get_top_scores(self, limit: int = 10) -> Page[FilmAvgScore]:
+        result = await self._repository.aggregate_top_films_by_score(
             self.db_table_name, limit
         )
+
+        return paginate(sequence=result)

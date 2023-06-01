@@ -17,7 +17,7 @@ async def test_ua_service_db_insert_value(frame_data):
 
     stored = await repository.find_one(
         dict(film_id=frame_data["film_id"], user_id=frame_data["user_id"]),
-        "table",
+        "view_progress",
     )
 
     assert stored.get("viewed_frame") == frame_data["viewed_frame"]
@@ -43,7 +43,7 @@ async def test_ua_service_db_update_value(frame_data):
 
     stored = await repository.find_one(
         dict(film_id=frame_data["film_id"], user_id=frame_data["user_id"]),
-        "table",
+        "view_progress",
     )
 
     assert stored.get("viewed_frame") == 2

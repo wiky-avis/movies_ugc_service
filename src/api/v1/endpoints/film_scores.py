@@ -1,19 +1,21 @@
 from http import HTTPStatus
+from typing import Annotated
 
 import dpath
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
+from fastapi_pagination import Page
 
+from src.api.v1.models.film_scores import (
+    FilmAvgScore,
+    ScoreEventType,
+    SetFilmScoreInput,
+)
 from src.api.v1.models.responses import (
     InternalServerError,
     NotAuthorized,
     NotFound,
-)
-from src.api.v1.models.scores import (
-    GetTopFilmsScoreInput,
-    ScoreEventType,
-    SetFilmScoreInput,
 )
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
@@ -24,7 +26,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/score-film/{film_id}",
+    "/film_scores/{film_id}",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},
@@ -63,7 +65,7 @@ async def set_film_score(
 
 
 @router.delete(
-    "/score-film/{film_id}",
+    "/film_scores/{film_id}",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},
@@ -91,13 +93,15 @@ async def delete_film_score(
 
     await user_film_scores_service.delete_score(score_data)
 
-    return await user_film_scores_service.send_event(
+    await user_film_scores_service.send_event(
         score_data, ScoreEventType.DELETE
     )
 
+    return JSONResponse("Score successfully deleted", HTTPStatus.NO_CONTENT)
+
 
 @router.get(
-    "/score-film/{film_id}",
+    "/film_scores/{film_id}",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},
@@ -127,7 +131,7 @@ async def get_film_score(
 
 
 @router.get(
-    "/top-films/by-score",
+    "/film_scores/top",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},
@@ -138,17 +142,9 @@ async def get_film_score(
 )
 @inject
 async def get_top_films_by_score(
-    body: GetTopFilmsScoreInput = Body(...),
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
     user_film_scores_service: UserFilmScoresService = Depends(
         Provide[Container.user_film_scores_service]
     ),
-    user_data=Depends(get_decoded_data),
-) -> list[dict]:
-    user_id = dpath.get(user_data, "user_id", default=None)
-    if not user_id:
-        raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Undefined user.",
-        )
-
-    return await user_film_scores_service.get_top_scores(limit=body.limit)
+) -> Page[FilmAvgScore]:
+    return await user_film_scores_service.get_top_scores(limit=limit)
