@@ -49,7 +49,7 @@ class UserFilmReviewsService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event",
+                detail="Error sending the event.",
             )
 
         film_review = FilmReviewEventModel(
@@ -69,14 +69,14 @@ class UserFilmReviewsService(BaseService):
             )
         except ProducerError:
             logger.warning(
-                "Error sending the event: film_id %s user_id %s",
+                "Error sending the event: film_id %s user_id %s.",
                 film_id,
                 user_id,
                 exc_info=True,
             )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail="Error sending the event",
+                detail="Error sending the event.",
             )
 
         return JSONResponse(content={"result": "Ok."})
@@ -116,7 +116,7 @@ class UserFilmReviewsService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error save film review",
+                detail="Error save film review.",
             )
 
         if await self._repository.find_one(
@@ -124,7 +124,7 @@ class UserFilmReviewsService(BaseService):
         ):
             raise HTTPException(
                 status_code=HTTPStatus.CONFLICT,
-                detail="User has already written a review for this film",
+                detail="User has already written a review for this film.",
             )
 
         query = dict(
@@ -142,7 +142,7 @@ class UserFilmReviewsService(BaseService):
             )
         except ServerSelectionTimeoutError:
             logger.error(
-                "MongoDb Error. Failed to create a user's film review: filter_query %s, table_name %s",
+                "MongoDb Error. Failed to create a user's film review: filter_query %s, table_name %s.",
                 query,
                 table_name,
                 exc_info=True,

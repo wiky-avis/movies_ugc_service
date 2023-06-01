@@ -8,6 +8,7 @@ from src.services import (
     user_bookmarks,
     user_film_reviews,
     user_view_history,
+    user_review_likes,
 )
 
 
@@ -18,6 +19,7 @@ class Container(containers.DeclarativeContainer):
             "src.api.v1.endpoints.bookmarks",
             "src.api.v1.endpoints.film_scores",
             "src.api.v1.endpoints.film_reviews",
+            "src.api.v1.endpoints.review_likes",
         ]
     )
 
@@ -48,6 +50,12 @@ class Container(containers.DeclarativeContainer):
 
     user_film_scores_service = providers.Factory(
         film_scores.UserFilmScoresService,
+        producer=kafka_producer,
+        repository=user_activity_repository,
+    )
+
+    user_review_likes_service = providers.Factory(
+        user_review_likes.UserReviewLikesService,
         producer=kafka_producer,
         repository=user_activity_repository,
     )

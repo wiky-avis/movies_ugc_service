@@ -45,7 +45,7 @@ class UserBookmarksService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event",
+                detail="Error sending the event. No user_id or no film_id.",
             )
 
         view_progress = UserBookmarkEventModel(
@@ -63,7 +63,7 @@ class UserBookmarksService(BaseService):
             )
         except ProducerError:
             logger.warning(
-                "Error sending the event: film_id %s user_id %s event_type %s",
+                "Error sending the event for bookmarks: film_id %s user_id %s event_type %s.",
                 film_id,
                 user_id,
                 event_type,
@@ -71,7 +71,7 @@ class UserBookmarksService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail="Error sending the event",
+                detail="Error sending the event.",
             )
 
         return JSONResponse(content={"result": "Ok."})
@@ -82,14 +82,14 @@ class UserBookmarksService(BaseService):
         film_id = dpath.get(data, "film_id", default=None)
         if not user_id or not film_id:
             logger.warning(
-                "Error insert or update user bookmark: table_name %s user_id %s film_id %s.",
+                "Error create user bookmark: table_name %s user_id %s film_id %s.",
                 table_name,
                 user_id,
                 film_id,
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error save bookmark",
+                detail="Error create bookmark. No user_id or no film_id.",
             )
 
         query = dict(film_id=film_id, user_id=user_id, is_deleted=False)
@@ -100,10 +100,14 @@ class UserBookmarksService(BaseService):
             )
         except ServerSelectionTimeoutError:
             logger.error(
-                "MongoDb Error. Failed to create a user bookmark: filter_query %s, table_name %s",
+                "MongoDb Error. Failed to create a user bookmark: filter_query %s, table_name %s.",
                 query,
                 table_name,
                 exc_info=True,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                detail="Error create bookmark.",
             )
 
     async def delete_bookmark(self, data: dict) -> None:
@@ -112,32 +116,41 @@ class UserBookmarksService(BaseService):
         film_id = dpath.get(data, "film_id", default=None)
         if not user_id or not film_id:
             logger.warning(
-                "Error insert or update user bookmark: table_name %s user_id %s film_id %s.",
+                "Error delete user bookmark: table_name %s user_id %s film_id %s.",
                 table_name,
                 user_id,
                 film_id,
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error save bookmark",
+                detail="Error save bookmark. No user_id or no film_id.",
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
-        if await self._repository.find_one(filter_query, table_name):
-            try:
-                await self._repository.update_one(
-                    filter_=filter_query,
-                    key="is_deleted",
-                    value=True,
-                    table_name=table_name,
-                )
-            except ServerSelectionTimeoutError:
-                logger.error(
-                    "MongoDb Error. Failed to deleted a user bookmark: filter_query %s, table_name %s",
-                    filter_query,
-                    table_name,
-                    exc_info=True,
-                )
+        if not await self._repository.find_one(filter_query, table_name):
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail="Error delete bookmark. Bookmark not found.",
+            )
+
+        try:
+            await self._repository.update_one(
+                filter_=filter_query,
+                key="is_deleted",
+                value=True,
+                table_name=table_name,
+            )
+        except ServerSelectionTimeoutError:
+            logger.error(
+                "MongoDb Error. Failed to deleted a user bookmark: filter_query %s, table_name %s.",
+                filter_query,
+                table_name,
+                exc_info=True,
+            )
+            raise HTTPException(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                detail="Error delete bookmark.",
+            )
 
     async def get_bookmarks_by_user_id(self, user_id: str) -> list[str]:
         table_name = "user_bookmarks"

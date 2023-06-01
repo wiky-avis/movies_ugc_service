@@ -48,7 +48,7 @@ class UserViewHistoryService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event",
+                detail="Error sending the event.",
             )
 
         view_progress = UserViewProgressEventModel(
@@ -66,14 +66,14 @@ class UserViewHistoryService(BaseService):
             )
         except ProducerError:
             logger.warning(
-                "Error sending the event: film_id %s user_id %s",
+                "Error sending the event: film_id %s user_id %s.",
                 film_id,
                 user_id,
                 exc_info=True,
             )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail="Error sending the event",
+                detail="Error sending the event.",
             )
 
         return JSONResponse(content={"result": "Ok."})
@@ -92,7 +92,7 @@ class UserViewHistoryService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error save view_progress",
+                detail="Error save view_progress. No user_id or no film_id or no viewed_frame.",
             )
 
         filter_query = dict(film_id=film_id, user_id=user_id)
@@ -104,7 +104,7 @@ class UserViewHistoryService(BaseService):
             )
         except ServerSelectionTimeoutError:
             logger.error(
-                "MongoDb Error. Failed to create or update a user view progress: filter_query %s, table_name %s",
+                "MongoDb Error. Failed to create or update a user view progress: filter_query %s, table_name %s.",
                 filter_query,
                 table_name,
                 exc_info=True,
@@ -126,7 +126,7 @@ class UserViewHistoryService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
-                detail="User has no saved progress",
+                detail="User has no saved progress.",
             )
         return ViewProgress(**user_view_progress)
 
