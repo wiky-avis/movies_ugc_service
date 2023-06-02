@@ -1,5 +1,6 @@
 import logging
 
+import dpath
 from starlette.responses import JSONResponse
 
 from src.brokers.base import BaseProducer
@@ -22,7 +23,19 @@ class UserReviewLikesService(BaseService):
         pass
 
     async def add_like(self, data: dict) -> None:
-        pass
+        table_name = "user_film_reviews"
+        review_id = dpath.get(data, "review_id", default=None)
+        review = await self._repository.find_one(
+                filter_=dict(review_id=review_id),
+                columns={},
+                table_name=table_name,
+        )
 
     async def add_dislike(self, data: dict) -> None:
-        pass
+        table_name = "user_film_reviews"
+        review_id = dpath.get(data, "review_id", default=None)
+        review = await self._repository.find_one(
+            filter_=dict(review_id=review_id),
+            columns={},
+            table_name=table_name,
+        )
