@@ -41,6 +41,12 @@ class KafkaTopicNames(BaseSettings):
     film_score_topic: str = Field(
         env="FILM_SCORE_TOPIC_NAME", default="film-score-topic"
     )
+    film_reviews_topic: str = Field(
+        env="FILM_REVIEWS_TOPIC_NAME", default="film-reviews-topic"
+    )
+    film_reviews_likes_topic: str = Field(
+        env="FILM_REVIEWS_LIKES_TOPIC_NAME", default="film-reviews-likes-topic"
+    )
 
     class Config:
         env_file: str = ".env"

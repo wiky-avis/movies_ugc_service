@@ -3,7 +3,12 @@ from dependency_injector import containers, providers
 from src.brokers import kafka_producer
 from src.common import db
 from src.repositories import user_activity
-from src.services import film_scores, user_bookmarks, user_view_history, user_film_reviews
+from src.services import (
+    film_scores,
+    user_bookmarks,
+    user_film_reviews,
+    user_view_history,
+)
 
 
 class Container(containers.DeclarativeContainer):

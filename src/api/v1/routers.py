@@ -1,6 +1,12 @@
 from fastapi import APIRouter
 
-from src.api.v1.endpoints import bookmarks, film_scores, view_progress, film_reviews
+from src.api.v1.endpoints import (
+    bookmarks,
+    film_reviews,
+    film_scores,
+    view_progress,
+)
+
 
 router = APIRouter(prefix="/api/v1", tags=["v1"])
 
