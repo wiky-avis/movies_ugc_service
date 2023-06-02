@@ -38,7 +38,7 @@ async def test_ua_service_save_progress_missing_parameters(
     assert e_info.value.status_code == HTTPStatus.BAD_REQUEST
 
 
-async def throw_error(key, value):
+async def throw_error(*args, **kwargs):
     raise ProducerError("some error")
 
 

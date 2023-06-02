@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import orjson
 from aiokafka import AIOKafkaConsumer, ConsumerRecord, errors
@@ -8,20 +8,24 @@ from kafka import TopicPartition
 
 from src.brokers.base import BaseConsumer
 from src.brokers.exceptions import ConsumerError
-from src.settings.kafka import KafkaConsumerSettings
+from src.settings.kafka import KafkaConsumerSettings, kafka_consumer_settings
 
 
 logger = logging.getLogger(__name__)
 
 
 class KafkaConsumer(BaseConsumer):
-    config: KafkaConsumerSettings = KafkaConsumerSettings()
+    config: KafkaConsumerSettings = kafka_consumer_settings
     kafka_consumer: AIOKafkaConsumer = None
+    topic_name: str = kafka_consumer_settings.default_topic_name
 
-    async def start(self):
+    async def start(self, topic_name: Optional[str] = None):
+        if topic_name:
+            self.topic_name = topic_name
+
         loop = asyncio.get_event_loop()
         self.kafka_consumer = AIOKafkaConsumer(
-            self.config.topic_name,
+            self.topic_name,
             loop=loop,
             bootstrap_servers=self.config.bootstrap_servers,
             auto_offset_reset="earliest",
@@ -64,7 +68,7 @@ class KafkaConsumer(BaseConsumer):
             except errors.KafkaError:
                 logger.error(
                     "Error when receiving events for topic %s",
-                    self.config.topic_name,
+                    self.topic_name,
                     exc_info=True,
                 )
                 raise ConsumerError

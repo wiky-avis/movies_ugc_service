@@ -15,6 +15,7 @@ from src.brokers.exceptions import ProducerError
 from src.brokers.models import FilmReviewEventModel
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
+from src.settings.kafka import kafka_topic_names
 
 
 logger = logging.getLogger(__name__)
@@ -25,8 +26,13 @@ class UserFilmReviewsService(BaseService):
         self._producer = producer
         self._repository = repository
 
-    async def send(self, key: bytes, value: bytes) -> None:
-        await self._producer.send(key=key, value=value)
+    async def send(
+        self,
+        key: bytes,
+        value: bytes,
+        topic: str = kafka_topic_names.film_reviews_topic,
+    ) -> None:
+        await self._producer.send(key=key, value=value, topic=topic)
 
     async def send_film_review(self, data: dict) -> JSONResponse:
         user_id = dpath.get(data, "user_id", default=None)

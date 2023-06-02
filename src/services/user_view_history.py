@@ -17,6 +17,7 @@ from src.brokers.exceptions import ProducerError
 from src.brokers.models import UserViewProgressEventModel
 from src.repositories.base import BaseRepository
 from src.services.base import BaseService
+from src.settings.kafka import kafka_topic_names
 
 
 logger = logging.getLogger(__name__)
@@ -27,8 +28,13 @@ class UserViewHistoryService(BaseService):
         self._producer = producer
         self._repository = repository
 
-    async def send(self, key: bytes, value: bytes) -> None:
-        await self._producer.send(key=key, value=value)
+    async def send(
+        self,
+        key: bytes,
+        value: bytes,
+        topic: str = kafka_topic_names.view_progress_topic,
+    ) -> None:
+        await self._producer.send(key=key, value=value, topic=topic)
 
     async def send_view_progress(self, data: dict) -> JSONResponse:
         user_id = dpath.get(data, "user_id", default=None)
@@ -93,8 +99,7 @@ class UserViewHistoryService(BaseService):
         try:
             await self._repository.upsert(
                 filter_=filter_query,
-                key="viewed_frame",
-                value=viewed_frame,
+                document={"viewed_frame": viewed_frame},
                 table_name=table_name,
             )
         except ServerSelectionTimeoutError:

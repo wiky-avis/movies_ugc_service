@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_kafka_request(
+async def test_view_progress_post_request(
     aiohttp_session, event_consumer, olap_client, user_settings
 ):
     # Отправляем черех API просмотренный фрейм

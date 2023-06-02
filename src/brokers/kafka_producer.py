@@ -5,14 +5,14 @@ from aiokafka import AIOKafkaProducer, errors
 
 from src.brokers.base import BaseProducer
 from src.brokers.exceptions import ProducerError
-from src.settings.kafka import KafkaProduserSettings
+from src.settings.kafka import KafkaProducerSettings, kafka_producer_settings
 
 
 logger = logging.getLogger(__name__)
 
 
 class KafkaProducer(BaseProducer):
-    config = KafkaProduserSettings()
+    config: KafkaProducerSettings = kafka_producer_settings
     kafka_producer: AIOKafkaProducer = None
 
     @classmethod
@@ -31,15 +31,20 @@ class KafkaProducer(BaseProducer):
             await cls.kafka_producer.stop()
             cls._producer = None
 
-    async def send(self, key: bytes, value: bytes) -> None:
+    async def send(
+        self,
+        key: bytes,
+        value: bytes,
+        topic: str = kafka_producer_settings.default_topic_name,
+    ) -> None:
         try:
             await self.kafka_producer.send_and_wait(
-                topic=self.config.topic_name, key=key, value=value
+                topic=topic, key=key, value=value
             )
         except errors.KafkaError:
             logger.exception(
                 "Error sending the event: topic_name %s",
-                self.config.topic_name,
+                topic,
                 exc_info=True,
             )
             raise ProducerError

@@ -13,6 +13,9 @@ mypy:
 
 linters: isort black flake8 mypy
 
+unit-tests:
+	python3 -m pytest tests/src/unit
+
 up-prod:
 	docker-compose -f docker-compose-prod.yml up --build
 
