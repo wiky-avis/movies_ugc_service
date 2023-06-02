@@ -1,10 +1,9 @@
-# from unittest import mock
 from http import HTTPStatus
 
 import pytest
 
 from src.app import app
-from tests.fake.services import FakeUserActivityRepository
+from tests.fake.services import FakeViewProgressRepository
 
 
 @pytest.mark.parametrize(
@@ -39,7 +38,7 @@ async def test_post_frame(input, expected, test_app_client):
     film_id = input["film_id"]
 
     with app.container.user_view_history_service.override(
-        FakeUserActivityRepository()
+        FakeViewProgressRepository()
     ):
         response = test_app_client.post(
             f"api/v1/view_progress/{film_id}",
@@ -58,7 +57,7 @@ async def test_get_frame(test_app_client):
     film_id = "e6a60937-fb0d-44d4-81f3-15d2170f1fe2"
 
     with app.container.user_view_history_service.override(
-        FakeUserActivityRepository()
+        FakeViewProgressRepository()
     ):
         response = test_app_client.get(f"api/v1/view_progress/{film_id}")
 

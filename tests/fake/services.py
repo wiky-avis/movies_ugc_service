@@ -1,11 +1,13 @@
+import json
 from typing import Any
 
 from starlette.responses import JSONResponse
 
+from src.api.v1.models.film_scores import FilmAvgScore, ScoreEventType
 from src.api.v1.models.view_progress import ViewProgress
 
 
-class FakeUserActivityRepository:
+class FakeViewProgressRepository:
     async def send_view_progress(self, data: dict):
         return JSONResponse(content={"result": "Ok."})
 
@@ -19,6 +21,39 @@ class FakeUserActivityRepository:
             viewed_frame=123,
             ts="1234",
         )
+
+
+class FakeFilmScoresRepository:
+    async def send_event(self, data: dict, event_type: ScoreEventType):
+        return JSONResponse(content={"result": "Ok."})
+
+    async def set_score(self, score_data: dict):
+        pass
+
+    async def delete_score(self, score_data: dict):
+        pass
+
+    async def get_user_score(self, user_id: str, film_id: str):
+        result = dict(
+            user_id=user_id,
+            film_id=film_id,
+            score=9,
+            is_deleted=False,
+        )
+        return JSONResponse(content=json.dumps(result))
+
+    async def get_top_scores(self, limit: int = 10):
+        result_1 = FilmAvgScore(
+            film_id="fa2745c1-831b-4f7d-9c63-fb774a1d0b7f",
+            avg_score=9,
+            num_scores=3,
+        )
+        result_2 = FilmAvgScore(
+            film_id="fe06ad4c-4154-4de3-826d-d1caf1d46e6f",
+            avg_score=8,
+            num_scores=5,
+        )
+        return [result_1, result_2]
 
 
 class FakeProducer:

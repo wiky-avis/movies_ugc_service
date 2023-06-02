@@ -5,7 +5,7 @@ import dpath
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
-from fastapi_pagination import Page
+from fastapi_pagination import Page, paginate
 
 from src.api.v1.models.film_scores import (
     FilmAvgScore,
@@ -101,6 +101,27 @@ async def delete_film_score(
 
 
 @router.get(
+    "/film_scores/top",
+    responses={
+        404: {"model": NotFound},
+        500: {"model": InternalServerError},
+        401: {"model": NotAuthorized},
+    },
+    summary="Получение топа фильмов по пользовательской оценке",
+    description="Возвращает список фильмов со средней оценкой и кол-вом отзывов",
+)
+@inject
+async def get_top_films_by_score(
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
+    user_film_scores_service: UserFilmScoresService = Depends(
+        Provide[Container.user_film_scores_service]
+    ),
+) -> Page[FilmAvgScore]:
+    result = await user_film_scores_service.get_top_scores(limit=limit)
+    return paginate(sequence=result)
+
+
+@router.get(
     "/film_scores/{film_id}",
     responses={
         404: {"model": NotFound},
@@ -128,23 +149,3 @@ async def get_film_score(
     return await user_film_scores_service.get_user_score(
         film_id=film_id, user_id=str(user_id)
     )
-
-
-@router.get(
-    "/film_scores/top",
-    responses={
-        404: {"model": NotFound},
-        500: {"model": InternalServerError},
-        401: {"model": NotAuthorized},
-    },
-    summary="Получение топа фильмов по пользовательской оценке",
-    description="Возвращает список фильмов со средней оценкой и кол-вом отзывов",
-)
-@inject
-async def get_top_films_by_score(
-    limit: Annotated[int, Query(ge=1, le=100)] = 10,
-    user_film_scores_service: UserFilmScoresService = Depends(
-        Provide[Container.user_film_scores_service]
-    ),
-) -> Page[FilmAvgScore]:
-    return await user_film_scores_service.get_top_scores(limit=limit)

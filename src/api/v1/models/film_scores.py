@@ -17,10 +17,10 @@ class UserFilmScore(BaseModel):
 
 
 class SetFilmScoreInput(BaseModel):
-    score: int = Field(..., ge=1, le=10)
+    score: int = Field(ge=1, le=10)
 
 
 class FilmAvgScore(BaseModel):
     film_id: str
-    avg_score: int
+    avg_score: float
     num_scores: int

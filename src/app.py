@@ -31,12 +31,13 @@ def create_app() -> FastAPI:
         openapi_prefix="",
     )
     app.container = container  # type: ignore
-    add_pagination(app)
 
     if settings.enable_tracer:
         configure_tracer(app)
 
     app.include_router(v1.router)
+
+    add_pagination(app)
 
     app.middleware("http")(RequestIdMiddleware())
 

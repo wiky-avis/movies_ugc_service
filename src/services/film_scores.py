@@ -6,7 +6,6 @@ from http import HTTPStatus
 import orjson
 from bson import json_util
 from fastapi import HTTPException
-from fastapi_pagination import Page, paginate
 from pymongo.errors import ServerSelectionTimeoutError
 from starlette.responses import JSONResponse
 
@@ -183,9 +182,7 @@ class UserFilmScoresService(BaseService):
 
         return JSONResponse(content=json_util.dumps(result))
 
-    async def get_top_scores(self, limit: int = 10) -> Page[FilmAvgScore]:
-        result = await self._repository.aggregate_top_films_by_score(
+    async def get_top_scores(self, limit: int = 10) -> list[FilmAvgScore]:
+        return await self._repository.aggregate_top_films_by_score(
             self.db_table_name, limit
         )
-
-        return paginate(sequence=result)
