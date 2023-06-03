@@ -7,8 +7,8 @@ from src.services import (
     film_scores,
     user_bookmarks,
     user_film_reviews,
-    user_view_history,
     user_review_likes,
+    user_view_history,
 )
 
 

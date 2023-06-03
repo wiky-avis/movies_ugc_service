@@ -4,8 +4,8 @@ from src.api.v1.endpoints import (
     bookmarks,
     film_reviews,
     film_scores,
-    view_progress,
     review_likes,
+    view_progress,
 )
 
 

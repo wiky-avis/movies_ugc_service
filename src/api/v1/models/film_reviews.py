@@ -17,4 +17,3 @@ class ReviewModel(BaseModel):
     created_dt: str
     likes: int = 0
     dislikes: int = 0
-

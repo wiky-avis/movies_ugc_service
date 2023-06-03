@@ -2,7 +2,6 @@
 import logging
 from http import HTTPStatus
 
-import dpath
 import orjson
 from fastapi import HTTPException
 from fastapi_pagination import paginate
