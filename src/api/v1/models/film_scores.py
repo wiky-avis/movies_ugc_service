@@ -22,10 +22,6 @@ class SetFilmScoreInput(BaseModel):
     score: int = Field(ge=1, le=10)
 
 
-class DeleteFilmScoreInput(BaseModel):
-    film_id: str
-
-
 class FilmAvgScore(BaseModel):
     film_id: str
     avg_score: float

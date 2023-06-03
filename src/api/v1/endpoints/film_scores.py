@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse
 from fastapi_pagination import Page, paginate
 
 from src.api.v1.models.film_scores import (
-    DeleteFilmScoreInput,
     FilmAvgScore,
     ScoreEventType,
     SetFilmScoreInput,
@@ -77,7 +76,7 @@ async def set_film_score(
 )
 @inject
 async def delete_film_score(
-    body: DeleteFilmScoreInput = Body(...),
+    film_id: str,
     user_film_scores_service: UserFilmScoresService = Depends(
         Provide[Container.user_film_scores_service]
     ),
@@ -91,7 +90,7 @@ async def delete_film_score(
         )
 
     score_data = UserFilmScore(
-        film_id=body.film_id,
+        film_id=film_id,
         user_id=user_id,  # type: ignore[arg-type]
         score=0,
     )

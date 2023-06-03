@@ -94,8 +94,7 @@ async def test_delete_score(test_app_client):
         FakeFilmScoresRepository()
     ):
         response = test_app_client.delete(
-            "api/v1/film_scores",
-            json={"film_id": film_id},
+            f"api/v1/film_scores?film_id={film_id}"
         )
 
     assert response.status_code == HTTPStatus.NO_CONTENT
