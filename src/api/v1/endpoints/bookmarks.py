@@ -2,10 +2,14 @@ from http import HTTPStatus
 
 import dpath
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from src.api.v1.models.bookmarks import EventType
+from src.api.v1.models.bookmarks import (
+    BookmarkEventType,
+    UserBookmarkInput,
+    UserBookmarkModel,
+)
 from src.api.v1.models.responses import InternalServerError
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
@@ -16,14 +20,14 @@ router = APIRouter()
 
 
 @router.post(
-    "/bookmarks/{film_id}",
+    "/bookmarks",
     responses={500: {"model": InternalServerError}},
     summary="Добавить фильм в закладки.",
     description="Добавление фильма в закладки пользователя.",
 )
 @inject
 async def add_bookmark(
-    film_id: str,
+    body: UserBookmarkInput = Body(...),
     user_bookmarks_service: UserBookmarksService = Depends(
         Provide[Container.user_bookmarks_service]
     ),
@@ -36,10 +40,10 @@ async def add_bookmark(
             detail="Undefined user.",
         )
 
-    user_bookmark_data = dict(
-        film_id=film_id,
-        event_type=EventType.ADDED,
-        user_id=user_id,
+    user_bookmark_data = UserBookmarkModel(
+        film_id=body.film_id,
+        event_type=BookmarkEventType.ADDED,
+        user_id=user_id,  # type: ignore[arg-type]
     )
 
     await user_bookmarks_service.create_bookmark(user_bookmark_data)
@@ -48,7 +52,7 @@ async def add_bookmark(
 
 
 @router.delete(
-    "/bookmarks/{film_id}",
+    "/bookmarks",
     responses={500: {"model": InternalServerError}},
     summary="Удалить фильм из закладок.",
     description="Удаление фильма из закладок поьзователя.",
@@ -67,10 +71,10 @@ async def delete_bookmark(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
-    user_bookmark_data = dict(
+    user_bookmark_data = UserBookmarkModel(
         film_id=film_id,
-        event_type=EventType.DELETED,
-        user_id=user_id,
+        event_type=BookmarkEventType.DELETED,
+        user_id=user_id,  # type: ignore[arg-type]
     )
 
     await user_bookmarks_service.delete_bookmark(user_bookmark_data)
@@ -79,7 +83,7 @@ async def delete_bookmark(
 
 
 @router.get(
-    "/bookmarks/list",
+    "/bookmarks",
     responses={500: {"model": InternalServerError}},
     summary="Список закладок пользователя.",
     description="Получить список film_id пользователя которые находятся у него в закладках.",

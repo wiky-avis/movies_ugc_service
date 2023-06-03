@@ -1,7 +1,4 @@
-from http import HTTPStatus
-
 import pytest
-from fastapi import HTTPException
 
 from src.services.user_view_history import UserViewHistoryService
 from tests.fake.services import FakeProducer, FakeUARepository
@@ -16,11 +13,11 @@ async def test_ua_service_db_insert_value(frame_data):
     await service.insert_or_update_view_progress(frame_data)
 
     stored = await repository.find_one(
-        dict(film_id=frame_data["film_id"], user_id=frame_data["user_id"]),
+        dict(film_id=frame_data.film_id, user_id=frame_data.user_id),
         "view_progress",
     )
 
-    assert stored.get("viewed_frame") == frame_data["viewed_frame"]
+    assert stored.get("viewed_frame") == frame_data.viewed_frame
 
 
 @pytest.mark.asyncio
@@ -30,43 +27,16 @@ async def test_ua_service_db_update_value(frame_data):
     service = UserViewHistoryService(producer, repository)
 
     # Первый фрейм
-    frame_1 = frame_data.copy()
-    frame_1["viewed_frame"] = 1
-
-    await service.insert_or_update_view_progress(frame_1)
+    frame_data.viewed_frame = 1
+    await service.insert_or_update_view_progress(frame_data)
 
     # Второй фрейм
-    frame_2 = frame_data.copy()
-    frame_2["viewed_frame"] = 2
-
-    await service.insert_or_update_view_progress(frame_2)
+    frame_data.viewed_frame = 2
+    await service.insert_or_update_view_progress(frame_data)
 
     stored = await repository.find_one(
-        dict(film_id=frame_data["film_id"], user_id=frame_data["user_id"]),
+        dict(film_id=frame_data.film_id, user_id=frame_data.user_id),
         "view_progress",
     )
 
     assert stored.get("viewed_frame") == 2
-
-
-@pytest.mark.parametrize(
-    "key_to_remove",
-    [
-        ("user_id"),
-        ("film_id"),
-        ("viewed_frame"),
-    ],
-)
-@pytest.mark.asyncio
-async def test_ua_service_db_insert_value_missing_parameters(
-    frame_data, key_to_remove
-):
-    service = UserViewHistoryService(FakeProducer(), FakeUARepository())
-
-    local_data = frame_data.copy()
-    local_data.pop(key_to_remove)
-
-    with pytest.raises(HTTPException) as e_info:
-        await service.insert_or_update_view_progress(local_data)
-
-    assert e_info.value.status_code == HTTPStatus.BAD_REQUEST

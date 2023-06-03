@@ -11,6 +11,7 @@ from src.api.v1.models.film_scores import (
     FilmAvgScore,
     ScoreEventType,
     SetFilmScoreInput,
+    UserFilmScore,
 )
 from src.api.v1.models.responses import (
     InternalServerError,
@@ -26,7 +27,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/film_scores/{film_id}",
+    "/film_scores",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},
@@ -37,7 +38,6 @@ router = APIRouter()
 )
 @inject
 async def set_film_score(
-    film_id: str,
     body: SetFilmScoreInput = Body(...),
     user_film_scores_service: UserFilmScoresService = Depends(
         Provide[Container.user_film_scores_service]
@@ -51,9 +51,9 @@ async def set_film_score(
             detail="Undefined user.",
         )
 
-    score_data = dict(
-        film_id=film_id,
-        user_id=user_id,
+    score_data = UserFilmScore(
+        film_id=body.film_id,
+        user_id=user_id,  # type: ignore[arg-type]
         score=body.score,
     )
 
@@ -65,7 +65,7 @@ async def set_film_score(
 
 
 @router.delete(
-    "/film_scores/{film_id}",
+    "/film_scores",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},
@@ -89,7 +89,11 @@ async def delete_film_score(
             detail="Undefined user.",
         )
 
-    score_data = dict(film_id=film_id, user_id=user_id, score=0)
+    score_data = UserFilmScore(
+        film_id=film_id,
+        user_id=user_id,  # type: ignore[arg-type]
+        score=0,
+    )
 
     await user_film_scores_service.delete_score(score_data)
 
@@ -122,7 +126,7 @@ async def get_top_films_by_score(
 
 
 @router.get(
-    "/film_scores/{film_id}",
+    "/film_scores",
     responses={
         404: {"model": NotFound},
         500: {"model": InternalServerError},

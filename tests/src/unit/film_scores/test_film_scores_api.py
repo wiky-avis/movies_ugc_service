@@ -7,11 +7,15 @@ from src.app import app
 from tests.fake.services import FakeFilmScoresRepository
 
 
+film_id = "4e0cff77-496e-4cd7-9c93-8ce6477333cd"
+
+
 @pytest.mark.parametrize(
     "test_input, expected",
     [
         (
             {
+                "film_id": film_id,
                 "score": 9,
             },
             {
@@ -23,6 +27,7 @@ from tests.fake.services import FakeFilmScoresRepository
         ),
         (
             {
+                "film_id": film_id,
                 "score": 11,
             },
             {
@@ -32,6 +37,7 @@ from tests.fake.services import FakeFilmScoresRepository
         ),
         (
             {
+                "film_id": film_id,
                 "score": 0,
             },
             {
@@ -41,6 +47,7 @@ from tests.fake.services import FakeFilmScoresRepository
         ),
         (
             {
+                "film_id": film_id,
                 "score": "9",
             },
             {
@@ -52,6 +59,7 @@ from tests.fake.services import FakeFilmScoresRepository
         ),
         (
             {
+                "film_id": film_id,
                 "score": 8.5,
             },
             {
@@ -65,14 +73,12 @@ from tests.fake.services import FakeFilmScoresRepository
 )
 @pytest.mark.asyncio
 async def test_post_score(test_input, expected, test_app_client):
-    film_id = "4e0cff77-496e-4cd7-9c93-8ce6477333cd"
-
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()
     ):
         response = test_app_client.post(
-            f"api/v1/film_scores/{film_id}",
-            json={"score": test_input["score"]},
+            "api/v1/film_scores",
+            json=test_input,
         )
 
     assert response.status_code == expected["status_code"]
@@ -84,13 +90,11 @@ async def test_post_score(test_input, expected, test_app_client):
 
 @pytest.mark.asyncio
 async def test_delete_score(test_app_client):
-    film_id = "4e0cff77-496e-4cd7-9c93-8ce6477333cd"
-
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()
     ):
         response = test_app_client.delete(
-            f"api/v1/film_scores/{film_id}",
+            f"api/v1/film_scores?film_id={film_id}"
         )
 
     assert response.status_code == HTTPStatus.NO_CONTENT
@@ -101,13 +105,11 @@ async def test_delete_score(test_app_client):
 
 @pytest.mark.asyncio
 async def test_get_score(test_app_client):
-    film_id = "4e0cff77-496e-4cd7-9c93-8ce6477333cd"
-
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()
     ):
         response = test_app_client.get(
-            f"api/v1/film_scores/{film_id}",
+            f"api/v1/film_scores?film_id={film_id}",
         )
 
     assert response.status_code == HTTPStatus.OK

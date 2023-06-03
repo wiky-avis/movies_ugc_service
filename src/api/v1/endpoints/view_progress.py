@@ -22,14 +22,13 @@ router = APIRouter()
 
 
 @router.post(
-    "/view_progress/{film_id}",
+    "/view_progress",
     responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
     summary="Сохранение временной метки о просмотре фильма.",
     description="Отправить сообщение с временной меткой о просмотре фильма в топик брокера сообщений.",
 )
 @inject
 async def saving_view_progress(
-    film_id: str,
     body: SaveViewProgressInput = Body(...),
     user_view_service: UserViewHistoryService = Depends(
         Provide[Container.user_view_history_service]
@@ -42,10 +41,10 @@ async def saving_view_progress(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
-    user_view_progress_data = dict(
-        film_id=film_id,
+    user_view_progress_data = ViewProgress(
+        film_id=body.film_id,
         viewed_frame=body.viewed_frame,
-        user_id=user_id,
+        user_id=user_id,  # type: ignore[arg-type]
     )
 
     await user_view_service.insert_or_update_view_progress(
@@ -56,7 +55,7 @@ async def saving_view_progress(
 
 
 @router.get(
-    "/view_progress/{film_id}",
+    "/view_progress",
     response_model=ViewProgress,
     responses={404: {"model": NotFound}},
     summary="Получение временной метки о просмотре фильма.",
