@@ -49,16 +49,14 @@ async def add_film_review(
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
-    # user_id = dpath.get(user_data, "user_id", default=None)
-    # if not user_id:
-    #     raise HTTPException(
-    #         status_code=HTTPStatus.UNAUTHORIZED,
-    #         detail="Undefined user.",
-    #     )
-    user_id = "13615361"
-
+    user_id = dpath.get(user_data, "user_id", default=None)
+    if not user_id:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Undefined user.",
+        )
     user_film_review = ReviewModel(
-        user_id=user_id,
+        user_id=user_id,  # type: ignore[arg-type]
         film_id=film_id,
         review_id=str(uuid.uuid4()),
         review_title=review.title,

@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class EventType(str, Enum):
+class LikeEventType(str, Enum):
     LIKE = "like"
     DISLIKE = "dislike"
 
@@ -11,4 +11,8 @@ class EventType(str, Enum):
 class ReviewLikeModel(BaseModel):
     review_id: str
     user_id: str
-    event_type: EventType
+    event_type: LikeEventType
+
+
+class ReviewLikeInput(BaseModel):
+    review_id: str

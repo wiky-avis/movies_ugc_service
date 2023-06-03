@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from src.api.v1.models.bookmarks import EventType
+from src.api.v1.models.review_likes import LikeEventType
 
 
 class UserViewProgressEventModel(BaseModel):
@@ -23,4 +24,11 @@ class FilmReviewEventModel(BaseModel):
     review_id: str
     review_title: str
     review_body: str
+    ts: str
+
+
+class UserReviewLikeEventModel(BaseModel):
+    user_id: str
+    review_id: str
+    action: LikeEventType = LikeEventType.LIKE
     ts: str

@@ -39,7 +39,7 @@ def create_app() -> FastAPI:
 
     add_pagination(app)
 
-    # app.middleware("http")(RequestIdMiddleware())
+    app.middleware("http")(RequestIdMiddleware())
 
     return app
 

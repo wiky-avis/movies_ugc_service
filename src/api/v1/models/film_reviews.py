@@ -9,7 +9,7 @@ class AddFilmReviewInput(BaseModel):
 
 
 class ReviewModel(BaseModel):
-    film_id: Optional[str]
+    film_id: Optional[str] = None
     review_id: str
     user_id: str
     review_title: str
