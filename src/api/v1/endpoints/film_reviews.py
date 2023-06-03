@@ -8,7 +8,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_pagination import Page
 
-from src.api.v1.models.film_reviews import AddFilmReviewInput, ReviewList
+from src.api.v1.models.film_reviews import AddFilmReviewInput, ReviewModel
 from src.api.v1.models.responses import InternalServerError, NotFound
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
@@ -30,7 +30,7 @@ async def get_film_reviews(
     user_film_reviews_service: UserFilmReviewsService = Depends(
         Provide[Container.user_film_reviews_service]
     ),
-) -> Page[ReviewList]:
+) -> Page[ReviewModel]:
     return await user_film_reviews_service.get_film_reviews(film_id=film_id)
 
 
@@ -49,14 +49,15 @@ async def add_film_review(
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
-    user_id = dpath.get(user_data, "user_id", default=None)
-    if not user_id:
-        raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Undefined user.",
-        )
+    # user_id = dpath.get(user_data, "user_id", default=None)
+    # if not user_id:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.UNAUTHORIZED,
+    #         detail="Undefined user.",
+    #     )
+    user_id = "13615361"
 
-    user_film_review = dict(
+    user_film_review = ReviewModel(
         user_id=user_id,
         film_id=film_id,
         review_id=str(uuid.uuid4()),
