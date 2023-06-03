@@ -4,7 +4,6 @@ from datetime import datetime
 from http import HTTPStatus
 from typing import Optional
 
-import dpath
 import orjson
 from fastapi import HTTPException
 from fastapi_pagination import paginate
@@ -27,6 +26,7 @@ class UserViewHistoryService(BaseService):
     def __init__(self, producer: BaseProducer, repository: BaseRepository):
         self._producer = producer
         self._repository = repository
+        self._table_name = "view_progress"
 
     async def send(
         self,
@@ -36,30 +36,20 @@ class UserViewHistoryService(BaseService):
     ) -> None:
         await self._producer.send(key=key, value=value, topic=topic)
 
-    async def send_view_progress(self, data: dict) -> JSONResponse:
-        user_id = dpath.get(data, "user_id", default=None)
-        film_id = dpath.get(data, "film_id", default=None)
-        viewed_frame = dpath.get(data, "viewed_frame", default=None)
-        if not user_id or not film_id or not viewed_frame:
-            logger.warning(
-                "Error send view_progress: user_id %s film_id %s.",
-                user_id,
-                film_id,
-            )
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event.",
-            )
-
+    async def send_view_progress(
+        self, view_progress_data: ViewProgress
+    ) -> JSONResponse:
         view_progress = UserViewProgressEventModel(
-            user_id=user_id,  # type: ignore[arg-type]
-            film_id=film_id,  # type: ignore[arg-type]
-            viewed_frame=viewed_frame,  # type: ignore[arg-type]
+            user_id=view_progress_data.user_id,
+            film_id=view_progress_data.film_id,
+            viewed_frame=view_progress_data.viewed_frame,
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
         try:
-            key = f"{film_id}:{user_id}".encode("utf-8")
+            key = f"{view_progress_data.film_id}:{view_progress_data.user_id}".encode(
+                "utf-8"
+            )
             await self.send(
                 value=orjson.dumps(view_progress.dict()),
                 key=key,
@@ -67,8 +57,8 @@ class UserViewHistoryService(BaseService):
         except ProducerError:
             logger.warning(
                 "Error sending the event: film_id %s user_id %s.",
-                film_id,
-                user_id,
+                view_progress_data.film_id,
+                view_progress_data.user_id,
                 exc_info=True,
             )
             raise HTTPException(
@@ -78,50 +68,37 @@ class UserViewHistoryService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def insert_or_update_view_progress(self, data: dict) -> None:
-        table_name = "view_progress"
-        user_id = dpath.get(data, "user_id", default=None)
-        film_id = dpath.get(data, "film_id", default=None)
-        viewed_frame = dpath.get(data, "viewed_frame", default=None)
-        if not user_id or not film_id or not viewed_frame:
-            logger.warning(
-                "Error insert or update view_progress: table_name %s user_id %s film_id %s.",
-                table_name,
-                user_id,
-                film_id,
-            )
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error save view_progress. No user_id or no film_id or no viewed_frame.",
-            )
-
-        filter_query = dict(film_id=film_id, user_id=user_id)
+    async def insert_or_update_view_progress(
+        self, view_progress_data: ViewProgress
+    ) -> None:
+        filter_query = dict(
+            film_id=view_progress_data.film_id,
+            user_id=view_progress_data.user_id,
+        )
         try:
             await self._repository.upsert(
                 filter_=filter_query,
-                document={"viewed_frame": viewed_frame},
-                table_name=table_name,
+                document={"viewed_frame": view_progress_data.viewed_frame},
+                table_name=self._table_name,
             )
         except ServerSelectionTimeoutError:
             logger.error(
                 "MongoDb Error. Failed to create or update a user view progress: filter_query %s, table_name %s.",
                 filter_query,
-                table_name,
+                self._table_name,
                 exc_info=True,
             )
 
     async def get_last_view_progress(
         self, filter_query: dict
     ) -> Optional[ViewProgress]:
-        table_name = "view_progress"
-
         user_view_progress = await self._repository.find_one(
-            filter_query, table_name
+            filter_query, self._table_name
         )
         if not user_view_progress:
             logger.warning(
                 "View_progress not found: table_name %s filter_query %s.",
-                table_name,
+                self._table_name,
                 filter_query,
             )
             raise HTTPException(
@@ -131,12 +108,10 @@ class UserViewHistoryService(BaseService):
         return ViewProgress(**user_view_progress)
 
     async def get_films_ids_watching_now(self):
-        table_name = "view_progress"
-
         result = [
             FilmView(film_id=doc["_id"], count=doc["count"])
             async for doc in self._repository.get_films_watching_now(
-                table_name=table_name
+                table_name=self._table_name
             )
         ]
         return paginate(sequence=result)

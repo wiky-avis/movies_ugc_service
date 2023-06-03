@@ -37,9 +37,9 @@ class UserBookmarksService(BaseService):
         self, bookmark_data: UserBookmarkModel
     ) -> JSONResponse:
         view_progress = UserBookmarkEventModel(
-            user_id=bookmark_data.user_id,  # type: ignore[arg-type]
-            film_id=bookmark_data.film_id,  # type: ignore[arg-type]
-            event_type=bookmark_data.event_type,  # type: ignore[arg-type]
+            user_id=bookmark_data.user_id,
+            film_id=bookmark_data.film_id,
+            event_type=bookmark_data.event_type,
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 

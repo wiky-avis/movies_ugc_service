@@ -35,14 +35,12 @@ from tests.fake.services import FakeViewProgressRepository
 )
 @pytest.mark.asyncio
 async def test_post_frame(input, expected, test_app_client):
-    film_id = input["film_id"]
-
     with app.container.user_view_history_service.override(
         FakeViewProgressRepository()
     ):
         response = test_app_client.post(
-            f"api/v1/view_progress/{film_id}",
-            json={"viewed_frame": input["viewed_frame"]},
+            "api/v1/view_progress",
+            json=input,
         )
 
     assert response.status_code == expected["status_code"]
@@ -59,7 +57,9 @@ async def test_get_frame(test_app_client):
     with app.container.user_view_history_service.override(
         FakeViewProgressRepository()
     ):
-        response = test_app_client.get(f"api/v1/view_progress/{film_id}")
+        response = test_app_client.get(
+            f"api/v1/view_progress?film_id={film_id}"
+        )
 
     assert response.status_code == HTTPStatus.OK
     data = response.json()

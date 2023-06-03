@@ -35,12 +35,12 @@ class UserFilmReviewsService(BaseService):
 
     async def send_film_review(self, review: ReviewModel) -> JSONResponse:
         film_review = FilmReviewEventModel(
-            user_id=review.user_id,  # type: ignore[arg-type]
+            user_id=review.user_id,
             film_id=review.film_id,  # type: ignore[arg-type]
-            review_id=review.review_id,  # type: ignore[arg-type]
-            review_title=review.review_title,  # type: ignore[arg-type]
-            review_body=review.review_body,  # type: ignore[arg-type]
-            ts=review.created_dt,  # type: ignore[arg-type]
+            review_id=review.review_id,
+            review_title=review.review_title,
+            review_body=review.review_body,
+            ts=review.created_dt,
         )
 
         try:
