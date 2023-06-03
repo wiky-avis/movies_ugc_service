@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.api.v1.models.bookmarks import EventType
+from src.api.v1.models.bookmarks import BookmarkEventType
 from src.api.v1.models.review_likes import LikeEventType
 
 
@@ -14,7 +14,7 @@ class UserViewProgressEventModel(BaseModel):
 class UserBookmarkEventModel(BaseModel):
     user_id: str
     film_id: str
-    event_type: EventType = EventType.ADDED
+    event_type: BookmarkEventType = BookmarkEventType.ADDED
     ts: str
 
 
