@@ -59,7 +59,7 @@ async def add_bookmark(
 )
 @inject
 async def delete_bookmark(
-    body: UserBookmarkInput = Body(...),
+    film_id: str,
     user_bookmarks_service: UserBookmarksService = Depends(
         Provide[Container.user_bookmarks_service]
     ),
@@ -72,7 +72,7 @@ async def delete_bookmark(
             detail="Undefined user.",
         )
     user_bookmark_data = UserBookmarkModel(
-        film_id=body.film_id,
+        film_id=film_id,
         event_type=BookmarkEventType.DELETED,
         user_id=user_id,  # type: ignore[arg-type]
     )
