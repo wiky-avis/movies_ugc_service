@@ -7,7 +7,6 @@ from src.services.user_view_history import UserViewHistoryService
 from tests.fake.services import FakeProducer, FakeUARepository
 
 
-@pytest.mark.asyncio
 async def test_last_view_progress(frame_data):
     producer = FakeProducer()
     repository = FakeUARepository()
@@ -27,7 +26,6 @@ async def test_last_view_progress(frame_data):
     assert result.viewed_frame == viewed_frame
 
 
-@pytest.mark.asyncio
 async def test_last_view_progress_no_data(frame_data):
     producer = FakeProducer()
     repository = FakeUARepository()

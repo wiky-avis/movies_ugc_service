@@ -88,6 +88,10 @@ class UserViewHistoryService(BaseService):
                 self._table_name,
                 exc_info=True,
             )
+            raise HTTPException(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                detail="Internal Server error",
+            )
 
     async def get_last_view_progress(
         self, filter_query: dict

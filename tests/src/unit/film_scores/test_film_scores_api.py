@@ -71,7 +71,6 @@ film_id = "4e0cff77-496e-4cd7-9c93-8ce6477333cd"
         ),
     ],
 )
-@pytest.mark.asyncio
 async def test_post_score(test_input, expected, test_app_client):
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()
@@ -88,7 +87,6 @@ async def test_post_score(test_input, expected, test_app_client):
         assert data[expected["key"]] == expected["response"]
 
 
-@pytest.mark.asyncio
 async def test_delete_score(test_app_client):
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()
@@ -103,7 +101,6 @@ async def test_delete_score(test_app_client):
     assert response_text == "Score successfully deleted"
 
 
-@pytest.mark.asyncio
 async def test_get_score(test_app_client):
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()
@@ -125,7 +122,6 @@ async def test_get_score(test_app_client):
     "ignore"
 )  # Игнорируется ворнинг FastAPIPaginationWarning.
 # Он навязывает использование fastapi_pagination.ext.motor.paginate вместо простого paginate
-@pytest.mark.asyncio
 async def test_get_top_scores(test_app_client):
     with app.container.user_film_scores_service.override(
         FakeFilmScoresRepository()

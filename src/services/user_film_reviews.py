@@ -107,3 +107,7 @@ class UserFilmReviewsService(BaseService):
                 table_name,
                 exc_info=True,
             )
+            raise HTTPException(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                detail="Internal Server error",
+            )

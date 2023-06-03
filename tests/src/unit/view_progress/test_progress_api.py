@@ -33,7 +33,6 @@ from tests.fake.services import FakeViewProgressRepository
         ),
     ],
 )
-@pytest.mark.asyncio
 async def test_post_frame(input, expected, test_app_client):
     with app.container.user_view_history_service.override(
         FakeViewProgressRepository()
@@ -50,7 +49,6 @@ async def test_post_frame(input, expected, test_app_client):
         assert data[expected["key"]] == expected["response"]
 
 
-@pytest.mark.asyncio
 async def test_get_frame(test_app_client):
     film_id = "e6a60937-fb0d-44d4-81f3-15d2170f1fe2"
 

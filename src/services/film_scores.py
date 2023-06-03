@@ -93,6 +93,10 @@ class UserFilmScoresService(BaseService):
                 self.db_table_name,
                 exc_info=True,
             )
+            raise HTTPException(
+                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                detail="Internal Server error",
+            )
 
     async def delete_score(self, score_data: UserFilmScore) -> None:
         filter_query = dict(
