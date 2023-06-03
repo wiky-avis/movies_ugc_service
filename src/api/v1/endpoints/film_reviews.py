@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/reviews/{film_id}",
+    "/reviews",
     responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
     summary="Получить список рецензий к фильму.",
     description="Получить список рецензий к фильму, отсортированный по дате создания.",
@@ -35,15 +35,14 @@ async def get_film_reviews(
 
 
 @router.post(
-    "/reviews/{film_id}",
+    "/reviews",
     responses={404: {"model": NotFound}, 500: {"model": InternalServerError}},
     summary="Оставить рецензию к фильму.",
     description="Добавление пользователем рецензии к фильму.",
 )
 @inject
 async def add_film_review(
-    film_id: str,
-    review: AddFilmReviewInput = Body(...),
+    body: AddFilmReviewInput = Body(...),
     user_film_reviews_service: UserFilmReviewsService = Depends(
         Provide[Container.user_film_reviews_service]
     ),
@@ -57,10 +56,10 @@ async def add_film_review(
         )
     user_film_review = ReviewModel(
         user_id=user_id,  # type: ignore[arg-type]
-        film_id=film_id,
+        film_id=body.film_id,
         review_id=str(uuid.uuid4()),
-        review_title=review.title,
-        review_body=review.body,
+        review_title=body.title,
+        review_body=body.body,
         created_dt=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
     )
 

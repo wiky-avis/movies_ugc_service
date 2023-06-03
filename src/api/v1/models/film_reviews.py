@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class AddFilmReviewInput(BaseModel):
+    film_id: str
     title: str
     body: str
 
