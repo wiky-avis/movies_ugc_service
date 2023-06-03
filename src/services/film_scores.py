@@ -118,7 +118,7 @@ class UserFilmScoresService(BaseService):
                     exc_info=True,
                 )
                 raise HTTPException(
-                    status_code=HTTPStatus.BAD_REQUEST,
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     detail="Error delete score.",
                 )
         else:
