@@ -129,7 +129,7 @@ class FakeUARepository:
 
             table = self.storage[table_name]
             row = table[row_key]
-            print("----row", row.dict())
+            print("----row", dict(row))
 
             result_dict = dict(user_id=user_id, film_id=film_id, ts="1234")
 
