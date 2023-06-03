@@ -39,46 +39,28 @@ class UserFilmScoresService(BaseService):
         await self._producer.send(key=key, value=value, topic=topic)
 
     async def send_event(
-        self, score_data: dict, event_type: ScoreEventType
+        self, score_data: UserFilmScore, event_type: ScoreEventType
     ) -> JSONResponse:
-        user_id = score_data.get("user_id")
-        film_id = score_data.get("film_id")
-        score = score_data.get("score")
-        if (
-            not user_id or not film_id or score is None
-        ):  # Проверка скора отличается, чтобы не тригериться на ноль
-            logger.warning(
-                "Error send new_film_score - missing parameters: user_id %s film_id %s score %s event_type %s.",
-                user_id,
-                film_id,
-                score,
-                event_type,
-            )
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event",
-            )
-
-        film_score = UserFilmScore(
-            user_id=user_id,
-            film_id=film_id,
-            score=int(score),
+        film_score = dict(
+            user_id=score_data.user_id,
+            film_id=score_data.film_id,
+            score=int(score_data.score),
             event_type=event_type,
             ts=str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         )
 
         try:
-            key = f"{film_id}:{user_id}".encode("utf-8")
+            key = f"{score_data.film_id}:{score_data.user_id}".encode("utf-8")
             await self.send(
-                value=orjson.dumps(film_score.dict()),
+                value=orjson.dumps(film_score),
                 key=key,
             )
         except ProducerError:
             logger.warning(
                 "Error send new_film_score - ProducerError: user_id %s film_id %s score %s event_type %s.",
-                user_id,
-                film_id,
-                score,
+                score_data.user_id,
+                score_data.film_id,
+                score_data.score,
                 event_type,
                 exc_info=True,
             )
@@ -89,28 +71,12 @@ class UserFilmScoresService(BaseService):
 
         return JSONResponse(content={"result": "Ok."})
 
-    async def set_score(self, score_data: dict) -> None:
-        user_id = score_data.get("user_id")
-        film_id = score_data.get("film_id")
-        score = score_data.get("score")
-        if not user_id or not film_id or not score:
-            logger.warning(
-                "Error set or update new_film_score: table_name %s user_id %s film_id %s score %s.",
-                self.db_table_name,
-                user_id,
-                film_id,
-                score,
-            )
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event",
-            )
-
-        filter_ = dict(film_id=film_id, user_id=user_id)
+    async def set_score(self, score_data: UserFilmScore) -> None:
+        filter_ = dict(film_id=score_data.film_id, user_id=score_data.user_id)
         document = dict(
-            film_id=film_id,
-            user_id=user_id,
-            score=int(score),
+            film_id=score_data.film_id,
+            user_id=score_data.user_id,
+            score=int(score_data.score),
             is_deleted=False,
         )
         try:
@@ -128,22 +94,10 @@ class UserFilmScoresService(BaseService):
                 exc_info=True,
             )
 
-    async def delete_score(self, score_data: dict) -> None:
-        user_id = score_data.get("user_id")
-        film_id = score_data.get("film_id")
-        if not user_id or not film_id:
-            logger.warning(
-                "Error set or update new_film_score: table_name %s user_id %s film_id %s.",
-                self.db_table_name,
-                user_id,
-                film_id,
-            )
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Error sending the event",
-            )
-
-        filter_query = dict(film_id=film_id, user_id=user_id)
+    async def delete_score(self, score_data: UserFilmScore) -> None:
+        filter_query = dict(
+            film_id=score_data.film_id, user_id=score_data.user_id
+        )
         if await self._repository.find_one(filter_query, self.db_table_name):
             try:
                 await self._repository.update_one(
