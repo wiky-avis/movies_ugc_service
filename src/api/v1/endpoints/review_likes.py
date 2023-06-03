@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.api.v1.models.responses import InternalServerError
-from src.api.v1.models.review_likes import EventType
+from src.api.v1.models.review_likes import EventType, ReviewLikeModel
 from src.common.decode_auth_token import get_decoded_data
 from src.containers import Container
 from src.services.user_review_likes import UserReviewLikesService
@@ -29,14 +29,15 @@ async def add_like(
     ),
     user_data=Depends(get_decoded_data),
 ) -> JSONResponse:
-    user_id = dpath.get(user_data, "user_id", default=None)
-    if not user_id:
-        raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            detail="Undefined user.",
-        )
+    # user_id = dpath.get(user_data, "user_id", default=None)
+    # if not user_id:
+    #     raise HTTPException(
+    #         status_code=HTTPStatus.UNAUTHORIZED,
+    #         detail="Undefined user.",
+    #     )
+    user_id = "13615361"
 
-    user_like_data = dict(
+    user_like_data = ReviewLikeModel(
         review_id=review_id,
         event_type=EventType.LIKE,
         user_id=user_id,
@@ -44,9 +45,9 @@ async def add_like(
 
     await user_review_likes_service.add_like(user_like_data)
 
-    return await user_review_likes_service.send_event_review_like(
-        user_like_data
-    )
+    # return await user_review_likes_service.send_event_review_like(
+    #     user_like_data
+    # )
 
 
 @router.post(
@@ -69,7 +70,7 @@ async def add_dislike(
             status_code=HTTPStatus.UNAUTHORIZED,
             detail="Undefined user.",
         )
-    user_like_data = dict(
+    user_like_data = ReviewLikeModel(
         review_id=review_id,
         event_type=EventType.DISLIKE,
         user_id=user_id,
@@ -77,6 +78,6 @@ async def add_dislike(
 
     await user_review_likes_service.add_dislike(user_like_data)
 
-    return await user_review_likes_service.send_event_review_like(
-        user_like_data
-    )
+    # return await user_review_likes_service.send_event_review_like(
+    #     user_like_data
+    # )

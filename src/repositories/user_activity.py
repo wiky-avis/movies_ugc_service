@@ -20,10 +20,10 @@ class UserActivityRepository(BaseRepository):
         await collection.insert_one(data)
 
     async def update_one(
-        self, filter_: dict, key: str, value: Any, table_name: str
+        self, filter_: dict, key: str, value: Any, table_name: str, method: str = "$set"
     ):
         collection = self._db[table_name]
-        await collection.update_one(filter_, {"$set": {key: value}})
+        await collection.update_one(filter_, {method: {key: value}})
 
     async def upsert(
         self,
