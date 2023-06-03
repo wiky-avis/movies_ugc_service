@@ -17,7 +17,7 @@ async def test_ua_service_db_insert_value(frame_data):
         "view_progress",
     )
 
-    assert stored.get("viewed_frame") == frame_data["viewed_frame"]
+    assert stored.get("viewed_frame") == frame_data.viewed_frame
 
 
 @pytest.mark.asyncio
