@@ -1,10 +1,7 @@
 import json
 from http import HTTPStatus
 
-import pytest
 
-
-@pytest.mark.asyncio
 async def test_film_score_post_request(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_id = "dc3825a9-8668-400e-b083-97aa24081352"
@@ -14,7 +11,6 @@ async def test_film_score_post_request(aiohttp_session, user_settings):
         assert resp.status == HTTPStatus.OK
 
 
-@pytest.mark.asyncio
 async def test_film_score_get_request(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_id = "b18d7b24-f2db-4f2a-b584-55da3cad8b26"
@@ -37,7 +33,6 @@ async def test_film_score_get_request(aiohttp_session, user_settings):
     assert api_result.get("score") == body["score"]
 
 
-@pytest.mark.asyncio
 async def test_film_score_delete_request(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_id = "39e7114a-f61e-461d-b2b4-9c5037b5051b"
@@ -55,7 +50,6 @@ async def test_film_score_delete_request(aiohttp_session, user_settings):
         assert resp.status == HTTPStatus.NOT_FOUND
 
 
-@pytest.mark.asyncio
 async def test_film_score_top_films(aiohttp_session, user_settings):
     # Отправляем через API просмотренный фрейм
     film_ids = [

@@ -3,10 +3,7 @@ import random
 from ast import literal_eval
 from http import HTTPStatus
 
-import pytest
 
-
-@pytest.mark.asyncio
 async def test_view_progress_post_request(
     aiohttp_session, event_consumer, olap_client, user_settings
 ):

@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from uuid import uuid4
 
 from fastapi import Request
@@ -20,7 +21,7 @@ class RequestIdMiddleware:
             else:
                 return JSONResponse(
                     content={"message": "Missing X-Request-Id header"},
-                    status_code=400,
+                    status_code=HTTPStatus.BAD_REQUEST,
                 )
 
         response = await call_next(request)
