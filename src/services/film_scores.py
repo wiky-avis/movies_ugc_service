@@ -95,7 +95,7 @@ class UserFilmScoresService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail="Internal Server error",
+                detail="Error set score.",
             )
 
     async def delete_score(self, score_data: UserFilmScore) -> None:
@@ -119,7 +119,7 @@ class UserFilmScoresService(BaseService):
                 )
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail="Internal Server error",
+                    detail="Error delete score.",
                 )
         else:
             raise HTTPException(

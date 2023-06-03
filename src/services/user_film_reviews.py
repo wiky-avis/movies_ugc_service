@@ -109,5 +109,5 @@ class UserFilmReviewsService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail="Internal Server error",
+                detail="Error create film review.",
             )

@@ -8,7 +8,6 @@ from src.services.user_view_history import UserViewHistoryService
 from tests.fake.services import FakeProducer, FakeUARepository
 
 
-@pytest.mark.asyncio
 async def test_ua_service_save_progress(frame_data):
     service = UserViewHistoryService(FakeProducer(), FakeUARepository())
 
@@ -19,7 +18,6 @@ async def throw_error(*args, **kwargs):
     raise ProducerError("some error")
 
 
-@pytest.mark.asyncio
 async def test_ua_service_save_progress_send_failed(frame_data):
     producer = FakeProducer()
     producer.send = throw_error

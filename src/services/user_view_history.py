@@ -90,7 +90,7 @@ class UserViewHistoryService(BaseService):
             )
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail="Internal Server error",
+                detail="Error insert or update view progress.",
             )
 
     async def get_last_view_progress(
